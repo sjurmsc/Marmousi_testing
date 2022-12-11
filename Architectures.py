@@ -638,7 +638,7 @@ from tensorflow.nn import convolution
 
 w = np.load('Marmousi_data/wavelet_Marmousi.npz')['wavelet']
 #wavelet = tf.convert_to_tensor(w, tf.float32)
-wavelet = tf.constant(w, shape=[1, len(w), 1, 1], dtype=tf.float32)
+wavelet = tf.constant(w, shape=[len(w), 1, 1, 1], dtype=tf.float32)
 
 def conv_ai_loss(y_true, y_pred):
     """

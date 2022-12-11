@@ -40,6 +40,7 @@ def ai_to_reflectivity(ai,win=7,threshold=8e-4):
     Acoustic Impedance to Reflectivity
     '''    
     refl = (ai[:, 1:]-ai[:, :-1])/(ai[:, 1:]+ai[:, :-1])
+    refl = np.pad(refl, (1, 0), mode='constant')
       
     ind=[]
     for i in range(win,len(ai)-win):
