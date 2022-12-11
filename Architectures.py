@@ -602,10 +602,10 @@ def unsupervised_Marmousi(train_data, config, **kwargs):
     )(input_layer)
     # Regression module
     reg = CNN(nb_filters=nb_filters,
-              kernel_size=kernel_size,
+              kernel_size=3,
               nb_stacks=nb_reg_stacks,
               padding=padding,
-              activation=activation,
+              activation='sigmoid',
               convolution_type=convolution_type,
               kernel_initializer=kernel_initializer,
               name = 'Regression_module'
