@@ -1,1 +1,0 @@
-# Marmousi_testing
