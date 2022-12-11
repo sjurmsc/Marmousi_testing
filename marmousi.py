@@ -36,7 +36,7 @@ seis = np.load('Data_dumps/seis1.npy')
 
 config = dict()
 config['nb_filters']            = 8
-config['kernel_size']           = 8 # Height, width
+config['kernel_size']           = 9 # Height, width
 config['dilations']             = [1, 2, 4, 8, 16, 32, 64]
 config['padding']               = 'same'
 config['use_skip_connections']  = True
