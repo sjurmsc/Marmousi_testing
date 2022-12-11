@@ -605,7 +605,7 @@ def unsupervised_Marmousi(train_data, config, **kwargs):
               kernel_size=kernel_size,
               nb_stacks=nb_reg_stacks,
               padding=padding,
-              activation='tanh',
+              activation=activation,
               convolution_type=convolution_type,
               kernel_initializer=kernel_initializer,
               name = 'Regression_module'

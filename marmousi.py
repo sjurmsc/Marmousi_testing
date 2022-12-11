@@ -35,7 +35,7 @@ seis = np.load('Data_dumps/seis1.npy')
 
 
 config = dict()
-config['nb_filters']            = 8
+config['nb_filters']            = 3
 config['kernel_size']           = 9 # Height, width
 config['dilations']             = [1, 2, 4, 8, 16, 32, 64]
 config['padding']               = 'same'
@@ -45,18 +45,18 @@ config['dropout_rate']          = 0.03
 config['return_sequences']      = True
 config['activation']            = 'relu'
 config['convolution_type']      = 'Conv1D'
-config['learn_rate']            = 0.0001
+config['learn_rate']            = 0.001
 config['kernel_initializer']    = 'he_normal'
 
 config['use_batch_norm']        = False
 config['use_layer_norm']        = False
 config['use_weight_norm']       = True
 
-config['nb_tcn_stacks']         = 3
+config['nb_tcn_stacks']         = 5
 config['nb_reg_stacks']         = 5  
 
 config['batch_size']            = 20
-config['epochs']                = 100
+config['epochs']                = 200
 
 split = len(seis)//2
 train = seis[:split]
