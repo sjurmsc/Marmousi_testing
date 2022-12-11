@@ -35,11 +35,11 @@ seis = np.load('Data_dumps/seis1.npy')
 
 
 config = dict()
-config['nb_filters']            = 3
+config['nb_filters']            = [3, 3, 5, 5, 5, 6, 9]
 config['kernel_size']           = 9 # Height, width
 config['dilations']             = [1, 2, 4, 8, 16, 32, 64]
 config['padding']               = 'same'
-config['use_skip_connections']  = True
+config['use_skip_connections']  = False
 config['dropout_type']          = 'normal'
 config['dropout_rate']          = 0.03
 config['return_sequences']      = True
@@ -52,7 +52,7 @@ config['use_batch_norm']        = False
 config['use_layer_norm']        = False
 config['use_weight_norm']       = True
 
-config['nb_tcn_stacks']         = 5
+config['nb_tcn_stacks']         = 3
 config['nb_reg_stacks']         = 5  
 
 config['batch_size']            = 20
