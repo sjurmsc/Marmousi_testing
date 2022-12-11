@@ -659,7 +659,8 @@ def conv_refl_loss(y_true, y_pred):
     """
     shp = tf.shape(y_pred)
     y_refl = tf.reshape(y_pred, (shp[0], shp[1], 1, 1))
-    y_pred_seis = convolution(y_refl, wavelet, padding='SAME')
+    y_pred_seis = convolution(y_refl, wavelet, padding='VALID')
+    print(y_pred_seis.shape)
     y_pred_seis = tf.reshape(y_pred_seis, (shp[0], shp[1]))
     return mean_squared_error(y_true, y_pred_seis)
 
