@@ -56,7 +56,7 @@ config['nb_tcn_stacks']         = 3
 config['nb_reg_stacks']         = 5  
 
 config['batch_size']            = 20
-config['epochs']                = 30
+config['epochs']                = 100
 
 split = len(seis)//2
 train = seis[:split]
@@ -66,7 +66,7 @@ model, History = unsupervised_Marmousi(train_data=train, config=config)
 model.save('model')
 pred = model.predict(test)
 pred = pred.reshape(pred.shape[:-1])
-np.save('pred', pred)
+np.save('Data_dumps/pred', pred)
 plt.imshow(pred.T)
 plt.show()
 

@@ -39,11 +39,7 @@ def ai_to_reflectivity(ai,win=7,threshold=8e-4):
     '''
     Acoustic Impedance to Reflectivity
     '''    
-    # compute reflectivity coeff
-    refl=np.zeros(np.shape(ai))
-    for i in range(len(ai)-1):
-        R=(ai[i+1]-ai[i])/(ai[i+1]+ai[i])
-        refl[i+1]=R
+    refl = (ai[:, 1:]-ai[:, :-1])/(ai[:, 1:]+ai[:, :-1])
       
     ind=[]
     for i in range(win,len(ai)-win):
