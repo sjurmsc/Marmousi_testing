@@ -5,8 +5,8 @@ from Seismic_interp_ToolBox import ai_to_reflectivity
 import numpy as np
 # import segyio
 
-files = {'density'  : 'density_marmousi-ii.segy',
-         'velocity' : 'vp_marmousi-ii.segy'}
+files = {'density'  : 'Marmousi_data/density_marmousi-ii.segy',
+         'velocity' : 'Marmousi_data/vp_marmousi-ii.segy'}
 
 depth = 10000
 
@@ -15,7 +15,7 @@ velocity, v_z =     get_traces(files['velocity'], zrange=(None, depth))
 
 ai = density*velocity
 
-w = np.load('wavelet_Marmousi.npz')
+w = np.load('Marmousi_data/wavelet_Marmousi.npz')
 wavelet = w['wavelet']
 dt = w['dt']
 
@@ -31,7 +31,7 @@ dt = w['dt']
 # seis = np.array(seis)
 # slopes = np.array(slopes)
 
-seis = np.load('seis1.npy')
+seis = np.load('Data_dumps/seis1.npy')
 
 
 config = dict()

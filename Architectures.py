@@ -636,7 +636,7 @@ import tensorflow as tf
 # from keras.backend import conv1d
 from tensorflow.nn import convolution
 
-w = np.load('wavelet_Marmousi.npz')['wavelet']
+w = np.load('Marmousi_data/wavelet_Marmousi.npz')['wavelet']
 #wavelet = tf.convert_to_tensor(w, tf.float32)
 wavelet = tf.constant(w, shape=[1, len(w), 1, 1], dtype=tf.float32)
 
