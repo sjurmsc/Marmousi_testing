@@ -354,6 +354,7 @@ class CNN(Layer):
                 convolution_type = 'Conv2D',
                 kernel_initializer='he_normal',
                 dropout_rate = 0.001,
+                dilations = [1, 2, 4, 8],
                 use_dropout = False,
                 use_batch_norm=False,
                 use_layer_norm=False,
@@ -364,6 +365,7 @@ class CNN(Layer):
         self.kernel_size = kernel_size
         self.nb_stacks = nb_stacks
         self.padding = padding
+        self.dilations = dilations
         self.activation = activation
         self.convolution_type = convolution_type
         self.kernel_initializer = kernel_initializer
@@ -402,6 +404,7 @@ class CNN(Layer):
                                                     padding = self.padding,
                                                     activation=self.activation,
                                                     kernel_initializer=self.kernel_initializer,
+                                                    dilation_rate=self.dilations,
                                                     name='convolution_layer_{}'.format(len(self.conv_blocks))))
         
         for layer in self.conv_blocks:
