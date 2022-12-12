@@ -617,7 +617,7 @@ def unsupervised_Marmousi(train_data, config, **kwargs):
     # reg = c_func(1, kernel_size, padding=padding, activation='linear', name='regression_output')(reg)
 
     #reg = Flatten()(x)
-    reg = Dense(X.shape[1]//2, activation='sigmoid')(reg)
+    reg = Dense(X.shape[1]//2, activation='sigmoid')(x)
     reg = Dense(X.shape[1], activation='linear')(reg)
     
 
