@@ -601,20 +601,23 @@ def unsupervised_Marmousi(train_data, config, **kwargs):
             name='Feature_recognition_module'
     )(input_layer)
     # Regression module
-    reg = CNN(nb_filters=nb_filters,
-              kernel_size=3,
-              nb_stacks=nb_reg_stacks,
-              padding=padding,
-              activation='sigmoid',
-              convolution_type=convolution_type,
-              kernel_initializer=kernel_initializer,
-              name = 'Regression_module'
-              )(x)
+    # reg = CNN(nb_filters=nb_filters,
+    #           kernel_size=3,
+    #           nb_stacks=nb_reg_stacks,
+    #           padding=padding,
+    #           activation='sigmoid',
+    #           convolution_type=convolution_type,
+    #           kernel_initializer=kernel_initializer,
+    #           name = 'Regression_module'
+    #           )(x)
     
-    c_func = Conv1D
-    if convolution_type == 'Conv2D': c_func = Conv2D # Not quite sure    
+    # c_func = Conv1D
+    # if convolution_type == 'Conv2D': c_func = Conv2D # Not quite sure    
 
-    reg = c_func(1, kernel_size, padding=padding, activation='linear', name='regression_output')(reg)
+    # reg = c_func(1, kernel_size, padding=padding, activation='linear', name='regression_output')(reg)
+
+    reg = Flatten()(x)
+    reg = Dense(X.shape[1], activation='linear')
 
     output_layer = [reg] # Regression, reconstruction
 
