@@ -609,6 +609,7 @@ def unsupervised_Marmousi(train_data, config, **kwargs):
               activation='sigmoid',
               convolution_type=convolution_type,
               kernel_initializer=kernel_initializer,
+              dilations=dilations,
               name = 'Regression_module'
               )(x)
     
