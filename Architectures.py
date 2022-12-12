@@ -397,7 +397,7 @@ class CNN(Layer):
         self.conv_blocks = []
 
         for k in range(self.nb_stacks):
-            for i, d in enumerate([self.dilations]):
+            for i, d in enumerate(self.dilations):
                 conv_filters = self.nb_filters[i] if isinstance(self.nb_filters, list) else self.nb_filters
                 self.conv_blocks.append(self.conv_func(filters=conv_filters, 
                                                     kernel_size=self.kernel_size,
