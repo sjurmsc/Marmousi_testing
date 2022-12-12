@@ -404,7 +404,7 @@ class CNN(Layer):
                                                     padding = self.padding,
                                                     activation=self.activation,
                                                     kernel_initializer=self.kernel_initializer,
-                                                    dilation_rate=self.dilations,
+                                                    dilation_rate=self.dilations[i],
                                                     name='convolution_layer_{}'.format(len(self.conv_blocks))))
         
         for layer in self.conv_blocks:
