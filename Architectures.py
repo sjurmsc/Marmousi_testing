@@ -539,7 +539,14 @@ def compiled_TCN(training_data, config, **kwargs):
     generator_loss = keras.losses.MeanSquaredError()
     discriminator_loss = keras.losses.BinaryCrossentropy()
 
-    model.compile(keras.optimizers.Adam(lr=lr, clipnorm=1.), g_loss=generator_loss, d_loss=discriminator_loss)
+    generator_optimizer = keras.optimizers.Adam(lr=lr, clipnorm=1.)
+    seis_disc_optimizer = keras.optimizers.Adam(lr=lr, clipnorm=1.)
+    ai_disc_optimizer   = keras.optimizers.Adam(lr=lr, clipnorm=1.)
+
+    model.compile(g_optimizer=generator_optimizer, 
+                  d_optimizers=[ai_disc_optimizer, seis_disc_optimizer], 
+                  g_loss=generator_loss, 
+                  d_loss=discriminator_loss)
     
 
     print(model.summary())
