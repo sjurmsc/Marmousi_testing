@@ -747,11 +747,11 @@ class multi_task_GAN(Model):
             disc_y_loss = self.disc_ai_loss(disc_real_y, disc_fake_y)
 
         print('\nGenerator\n')
-        print(tf.shape(self.generator.trainable_variables))
+        print(len(self.generator.trainable_variables))
         print(tf.shape(gen_y_loss))
         print(tf.shape(gen_X_loss))
         print('\nDiscriminator\n')
-        print(tf.shape(self.seismic_discriminator.trainable_variables))
+        print(len(self.seismic_discriminator.trainable_variables))
         print(tf.shape(disc_X_loss))
 
         # Get the gradients
