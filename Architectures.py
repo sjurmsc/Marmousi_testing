@@ -776,12 +776,7 @@ class multi_task_GAN(Model):
             dX_loss = self.d_loss(misleading_X_truth, X_predictions)
             dy_loss = self.d_loss(misleading_y_truth, y_predictions)
             gen_loss = g_loss + dX_loss + dy_loss
-            print(X_predictions.shape)
-            print(misleading_X_truth.shape)
-            print(g_loss.shape)
-            print(dX_loss.shape)
-            print(dy_loss.shape)
-            print(gen_loss.shape)
+
         # Get the gradients
         gen_grads = tape.gradient(gen_loss, self.generator.trainable_variables)
 
