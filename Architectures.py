@@ -768,8 +768,7 @@ class multi_task_GAN(Model):
         )
 
         return {
-                'gen_X_loss' : gen_loss[1],
-                'gen_y_loss' : gen_loss[0],
+                'gen_loss'   : gen_loss,
                 'disc_X_loss': disc_X_loss,
                 'disc_y_loss': disc_y_loss
                 }
