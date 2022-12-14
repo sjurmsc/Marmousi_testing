@@ -776,6 +776,7 @@ class multi_task_GAN(Model):
             dy_loss = self.d_loss(misleading_y_truth, y_predictions)
             gen_loss = g_loss + dX_loss + dy_loss
             print(X_predictions.shape)
+            print(misleading_X_truth.shape)
             print(dX_loss.shape)
             print(dy_loss.shape)
             print(gen_loss.shape)
