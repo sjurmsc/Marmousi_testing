@@ -712,8 +712,8 @@ class multi_task_GAN(Model):
     def metrics(self):
         pass
 
-    def compile(self, g_optimizer, d_optimizers, g_loss, d_loss):
-        super(multi_task_GAN, self).compile()
+    def compile(self, g_optimizer, d_optimizers, g_loss, d_loss, **kwargs):
+        super(multi_task_GAN, self).compile(**kwargs)
         self.g_optimizer    = g_optimizer
         self.d_X_optimizer  = d_optimizers[1]
         self.d_y_optimizer  = d_optimizers[0]
