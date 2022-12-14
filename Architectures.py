@@ -549,10 +549,10 @@ def compiled_TCN(training_data, config, **kwargs):
                   d_loss=discriminator_loss)
     
 
-    print(model.summary())
+    
 
     History = model.fit(x=X, y=y, batch_size=batch_size, epochs=epochs, **kwargs)
-    
+    #print(model.summary())
     return model, History
 
 
