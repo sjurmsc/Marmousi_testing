@@ -540,14 +540,19 @@ def compiled_TCN(training_data, config, **kwargs):
 
     output_layer = [reg, rec] # Regression, reconstruction
 
-    model = Model(inputs = input_layer, 
-                  outputs = output_layer)
+    gen_model = Model(inputs = input_layer, 
+                      outputs = output_layer)
+    
+
+    seis_disc_model = discriminator(output_layer[1], 3, name='seismic_discriminator')
+    ai_disc_model = discriminator(output_layer[0], 3, name='ai_discriminator')
+
+
+    model = multi_task_GAN([ai_disc_model, seis_disc_model], gen_model)
+
     model.compile(keras.optimizers.Adam(lr=lr, clipnorm=1.), loss={'regression_output' : 'mean_squared_error',
                                                                            'reconstruction_output' : 'mean_squared_error'})
     
-    # plot_model(x, to_file='TCN.png', show_shapes=True, expand_nested=True, show_layer_activations=True, show_layer_names=True)
-    # plot_model(reg, to_file='regCNN.png', show_shapes=True, expand_nested=True, show_layer_activations=True, show_layer_names=True)
-    # plot_model(rec, to_file='recCNN.png', show_shapes=True, expand_nested=True, show_layer_activations=True, show_layer_names=True)
 
     print(model.summary())
 
@@ -638,6 +643,19 @@ def unsupervised_Marmousi(train_data, config, **kwargs):
     
     return model, History
 
+
+def discriminator(Input_shape, depth, conv_dim=1, name='discriminator'):
+    input_layer = Input(Input_shape)
+    x = input_layer
+    for _ in range(depth):
+        x = Conv1D(1, kernel_size=4, padding='valid')(x)
+        x = layers.BatchNormalization(scale=False)(x)
+        x = layers.LeakyReLU()(x)
+    x = layers.Flatten()(x)
+    output_score = Dense(1)(x)
+    return Model(input_layer, output_score, name=name)
+
+
 # Loss Function
 import numpy as np
 import tensorflow as tf
@@ -692,14 +710,13 @@ def create_discriminator():
 
 class multi_task_GAN(Model):
 
-    def __init__(self, discriminators, generators):
+    def __init__(self, discriminators, generator):
         """
         """
         super(multi_task_GAN, self).__init__()
         self.seismic_discriminator  = discriminators[1]
         self.ai_discriminator       = discriminators[0]
-        self.seismic_generator      = generators[1]
-        self.ai_generator           = generators[0]
+        self.generator              = generator
         self.gen_seis_loss          = keras.metrics.Mean(name='generator_seismic_loss')
         self.gen_ai_loss            = keras.metrics.Mean(name='generator_ai_loss')
         self.disc_seis_loss         = keras.metrics.Mean(name='discriminator_seismic_loss')
@@ -709,18 +726,18 @@ class multi_task_GAN(Model):
     def metrics(self):
         pass
 
-    def compile(self, g_optimizer, d_optimizer, g_loss, d_loss):
+    def compile(self, g_optimizer, d_optimizers, g_loss, d_loss):
         super(multi_task_GAN, self).compile()
-        self.g_optimizer = g_optimizer
-        self.d_optimizer = d_optimizer
-        self.g_loss      = g_loss
-        self.d_loss      = d_loss
+        self.g_optimizer    = g_optimizer
+        self.d_X_optimizer  = d_optimizers[1]
+        self.d_y_optimizer  = d_optimizers[0]
+        self.g_loss         = g_loss
+        self.d_loss         = d_loss
     
     def train_step(self, batch_data):
         real_X, real_y = batch_data
         with tf.GradientTape(persistent=True) as tape:
-            fake_X = self.seismic_generator(real_X, training=True)
-            fake_y = self.ai_generator(real_X)
+            fake_y, fake_X = self.generator(real_X, training=True)
             disc_real_X = self.seismic_discriminator(real_X, training=True)
             disc_fake_X = self.seismic_discriminator(fake_X, training=True)
             disc_real_y = self.ai_discriminator(real_y, training=True)
@@ -734,12 +751,30 @@ class multi_task_GAN(Model):
             disc_X_loss = self.disc_seis_loss(disc_real_X, disc_fake_X)
             disc_y_loss = self.disc_ai_loss(disc_real_y, disc_fake_y)
 
-        # Get the gradients
-        gen_X_grads = tape.gradient(gen_X_loss, )
+        print('\nGenerator\n')
+        print(self.generator.trainable_variables)
+        print('\nDiscriminator\n')
+        print(self.seismic_discriminator.trainable_variables)
 
+        # Get the gradients
+        gen_y_grads, gen_X_grads = tape.gradient([gen_y_loss, gen_X_loss], self.generator.trainable_variables)
+        disc_X_grads = tape.gradient(disc_X_loss, self.seismic_discriminator.trainable_variables)
+        disc_y_grads = tape.gradient(disc_y_loss, self.ai_discriminator)
 
         # Update the weights
         self.g_optimizer.apply_gradients(
             zip(gen_X_grads, self.generator.trainable_variables)
         )
-        self.
+        self.d_X_optimizer.apply_gradients(
+            zip(disc_X_grads, self.seismic_discriminator.trainable_variables)
+        )
+        self.d_y_optimizer.apply_gradients(
+            zip(disc_y_grads, self.ai_discriminator.trainable_variables)
+        )
+
+        return {
+                'gen_X_loss' : gen_X_loss,
+                'gen_y_loss' : gen_y_loss,
+                'disc_X_loss': disc_X_loss,
+                'disc_y_loss': disc_y_loss
+                }
