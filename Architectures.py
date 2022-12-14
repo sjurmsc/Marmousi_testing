@@ -748,8 +748,8 @@ class multi_task_GAN(Model):
 
         print('\nGenerator\n')
         print(len(self.generator.trainable_variables))
-        print(len(gen_y_loss))
-        print(len(gen_X_loss))
+        print(gen_y_loss.shape)
+        print(gen_X_loss.shape)
         print('\nDiscriminator\n')
         print(len(self.seismic_discriminator.trainable_variables))
         print(tf.shape(disc_X_loss))
