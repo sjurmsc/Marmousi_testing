@@ -755,13 +755,17 @@ class multi_task_GAN(Model):
         print(tf.shape(disc_X_loss))
 
         # Get the gradients
-        gen_grads = tape.gradient([gen_y_loss, gen_X_loss], self.generator.trainable_variables)
+        gen_X_grads = tape.gradient(gen_X_loss, self.generator.trainable_variables)
+        gen_y_grads = tape.gradient(gen_y_loss, self.generator.trainable_variables)
         disc_X_grads = tape.gradient(disc_X_loss, self.seismic_discriminator.trainable_variables)
         disc_y_grads = tape.gradient(disc_y_loss, self.ai_discriminator.trainable_variables)
 
         # Update the weights
         self.g_optimizer.apply_gradients(
-            zip(gen_grads, self.generator.trainable_variables)
+            zip(gen_X_grads, self.generator.trainable_variables)
+        )
+        self.g_optimizer.apply_gradients(
+            zip(gen_y_grads, self.generator.trainable_variables)
         )
         self.d_X_optimizer.apply_gradients(
             zip(disc_X_grads, self.seismic_discriminator.trainable_variables)
