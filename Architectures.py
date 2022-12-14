@@ -730,9 +730,11 @@ class multi_task_GAN(Model):
         self.d_loss         = d_loss
     
     def train_step(self, batch_data):
+        batch_size = tf.shape(batch_data)[0]
         real_X, real_y = batch_data
         real_X = tf.reshape(real_X, (*real_X.shape, 1))
         real_y = tf.reshape(real_y, (*real_y.shape, 1))
+
         with tf.GradientTape(persistent=True) as tape:
             fake_y, fake_X = self.generator(real_X, training=True)
             disc_real_X = self.seismic_discriminator(real_X, training=True)
@@ -740,22 +742,19 @@ class multi_task_GAN(Model):
             disc_real_y = self.ai_discriminator(real_y, training=True)
             disc_fake_y = self.ai_discriminator(fake_y, training=True)
 
-            # Generator loss
-            gen_loss = self.g_loss([real_y, real_X], [fake_y, fake_X])
-
+            X_predictions = tf.concat([disc_real_X, disc_fake_X], axis=0)
+            X_truth       = tf.concat([tf.ones((batch_size, 1)), tf.zeros((batch_size, 1))])
+            y_predictions = tf.concat([disc_real_y, disc_fake_y], axis=0)
+            y_truth       = tf.concat([tf.ones((batch_size, 1)), tf.zeros((batch_size, 1))])
             # Discriminator loss
-            disc_X_loss = self.d_loss(disc_real_X, disc_fake_X)
-            disc_y_loss = self.d_loss(disc_real_y, disc_fake_y)
-
-        # Get the gradients
-        gen_grads = tape.gradient(gen_loss, self.generator.trainable_variables)
+            disc_X_loss = self.d_loss(X_truth, X_predictions)
+            disc_y_loss = self.d_loss(y_truth, y_predictions)
+        
+        # Get discriminator gradients
         disc_X_grads = tape.gradient(disc_X_loss, self.seismic_discriminator.trainable_variables)
         disc_y_grads = tape.gradient(disc_y_loss, self.ai_discriminator.trainable_variables)
 
-        # Update the weights
-        self.g_optimizer.apply_gradients(
-            zip(gen_grads, self.generator.trainable_variables)
-        )
+        # Apply those gradients
         self.d_X_optimizer.apply_gradients(
             zip(disc_X_grads, self.seismic_discriminator.trainable_variables)
         )
@@ -763,8 +762,33 @@ class multi_task_GAN(Model):
             zip(disc_y_grads, self.ai_discriminator.trainable_variables)
         )
 
+
+        with tf.GradientTape(persistent=True) as tape:
+            disc_real_X = self.seismic_discriminator(real_X, training=True)
+            disc_fake_X = self.seismic_discriminator(fake_X, training=True)
+            disc_real_y = self.ai_discriminator(real_y, training=True)
+            disc_fake_y = self.ai_discriminator(fake_y, training=True)
+            X_predictions = tf.concat([disc_real_X, disc_fake_X], axis=0)
+            bad_X_truth   = tf.concat([tf.ones((batch_size, 1)), tf.ones((batch_size, 1))])
+            y_predictions = tf.concat([disc_real_y, disc_fake_y], axis=0)
+            bad_y_truth   = tf.concat([tf.ones((batch_size, 1)), tf.ones((batch_size, 1))])
+            # Generator loss
+            g_loss = self.g_loss([real_y, real_X], [fake_y, fake_X])
+            dX_loss = self.d_loss(bad_X_truth, X_predictions)
+            dy_loss = self.d_loss(bad_y_truth, y_predictions)
+            gen_loss = g_loss + dX_loss + dy_loss
+
+        # Get the gradients
+        gen_grads = tape.gradient(gen_loss, self.generator.trainable_variables)
+
+        # Update the weights
+        self.g_optimizer.apply_gradients(
+            zip(gen_grads, self.generator.trainable_variables)
+        )
+
         return {
                 'generator_loss'   : gen_loss,
                 'discriminator_X_loss': disc_X_loss,
                 'discriminator_y_loss': disc_y_loss
                 }
+        
