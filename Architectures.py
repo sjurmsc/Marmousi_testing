@@ -684,3 +684,42 @@ def ai_to_reflectivity(ai):
     return tf.pad(refl, padding)
 
 
+# Models:
+def create_discriminator():
+    img_input = Input()
+
+
+
+class multi_task_GAN(Model):
+
+    def __init__(self, discriminators, generator):
+        """
+        """
+        super(multi_task_GAN, self).__init__()
+        self.seismic_discriminator  = discriminators[1]
+        self.ai_discriminator       = discriminators[0]
+        self.generator              = generator
+        self.gen_seis_loss          = keras.metrics.Mean(name='generator_seismic_loss')
+        self.gen_ai_loss            = keras.metrics.Mean(name='generator_ai_loss')
+        self.disc_seis_loss         = keras.metrics.Mean(name='discriminator_seismic_loss')
+        self.disc_ai_loss           = keras.metrics.Mean(name='discriminator_ai_loss')
+    
+    @property
+    def metrics(self):
+        pass
+
+    def compile(self, g_optimizer, d_optimizer, g_loss, d_loss):
+        super(multi_task_GAN, self).compile()
+        self.g_optimizer = g_optimizer
+        self.d_optimizer = d_optimizer
+        self.g_loss      = g_loss
+        self.d_loss      = d_loss
+    
+    def train_step(self, batch_data):
+        real_X, real_y = batch_data
+        with tf.GradientTape(persistent=True) as tape:
+            fake_y, fake_X = self.generator(real_X, training=True)
+            disc_real_X = self.seismic_discriminator(real_X, training=True)
+            disc_fake_X = self.seismic_discriminator(fake_X, training=True)
+            disc_real_y = self.ai_discriminator(real_y, training=True)
+            disc_fake_y = self.ai_discriminator(fake_y, training=True)

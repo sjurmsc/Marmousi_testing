@@ -38,22 +38,20 @@ def reflectivity_to_ai(refl,slope=None,basevalue=1500):
 def ai_to_reflectivity(ai,win=7,threshold=8e-4):
     '''
     Acoustic Impedance to Reflectivity
-    '''    
+    '''
+    ai = np.array(ai)
+    if len(ai.shape) == 1: ai.reshape((1, *ai.shape))
     refl = (ai[:, 1:]-ai[:, :-1])/(ai[:, 1:]+ai[:, :-1])
     refl = np.pad(refl, (1, 0), mode='constant')
-      
-    ind=[]
-    for i in range(win,len(ai)-win):
-        for kk in range(1,win):
-            if (np.abs(refl[i]-refl[i-kk])<threshold) or (np.abs(refl[i]-refl[i+kk])<threshold):
-                ind.append(i)
-                break     
-    refl[ind]=0
+    
+    ind = []
+    for i in range(win, ai.shape[1]): # All moving window positions
+        if np.any(np.abs(refl[:, i]-refl[:, (i-win):i])<threshold):
+            ind.append(i)
     
     slope=np.zeros(np.shape(ai))
     ind=np.where(np.abs(refl)>0)[0]
-    for iii in range(len(slope)-1):
-        slope[iii+1]=ai[iii+1]-ai[iii]
+    slope[:, 1:] = np.diff(ai, axis=1)
     slope[ind]=0
     
     return refl, slope
