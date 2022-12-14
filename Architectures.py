@@ -731,6 +731,8 @@ class multi_task_GAN(Model):
     
     def train_step(self, batch_data):
         real_X, real_y = batch_data
+        real_X = tf.reshape(real_X, (*real_X.shape, 1))
+        real_y = tf.reshape(real_y, (*real_y.shape, 1))
         with tf.GradientTape(persistent=True) as tape:
             fake_y, fake_X = self.generator(real_X, training=True)
             disc_real_X = self.seismic_discriminator(real_X, training=True)
@@ -743,7 +745,7 @@ class multi_task_GAN(Model):
             print(real_y.shape)
             print(fake_X.shape)
             print(fake_y.shape)
-            gen_loss = self.g_loss([real_y, real_X], [fake_y.reshape(real_y.shape), fake_X.reshape(real_X.shape)])
+            gen_loss = self.g_loss([real_y, real_X], [fake_y, fake_X])
 
             # Discriminator loss
             disc_X_loss = self.d_loss(disc_real_X, disc_fake_X)
