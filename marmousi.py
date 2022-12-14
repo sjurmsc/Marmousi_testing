@@ -64,12 +64,12 @@ train = [seis[:split], ai[:split]]
 test = seis[split:]
 
 model, History = compiled_TCN(train, config=config)
-model.save('model')
+#model.save('model')
 pred = model.predict(test)
-pred = pred.reshape(pred.shape[:-1])
-np.save('Data_dumps/pred', pred)
-plt.imshow(pred.T, cmap='Spectral')
-plt.show()
+#pred = pred.reshape(pred.shape[:-1])
+#np.save('Data_dumps/pred', pred)
+#plt.imshow(pred.T, cmap='Spectral')
+#plt.show()
 
 
 

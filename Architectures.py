@@ -764,7 +764,7 @@ class multi_task_GAN(Model):
         )
 
         return {
-                'gen_loss'   : gen_loss,
-                'disc_X_loss': disc_X_loss,
-                'disc_y_loss': disc_y_loss
+                'generator_loss'   : gen_loss,
+                'discriminator_X_loss': disc_X_loss,
+                'discriminator_y_loss': disc_y_loss
                 }
