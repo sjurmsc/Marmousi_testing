@@ -764,8 +764,8 @@ class multi_task_GAN(Model):
 
 
         with tf.GradientTape(persistent=True) as tape:
-            X_predictions = self.seismic_discriminator(fake_X, training=True)
-            y_predictions = self.ai_discriminator(fake_y, training=True)
+            X_predictions = self.seismic_discriminator(fake_X)
+            y_predictions = self.ai_discriminator(fake_y)
 
             misleading_X_truth   = tf.zeros((batch_size, 1))
             misleading_y_truth   = tf.zeros((batch_size, 1))
