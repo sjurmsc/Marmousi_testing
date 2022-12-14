@@ -536,7 +536,7 @@ def compiled_TCN(training_data, config, **kwargs):
 
     model = multi_task_GAN([ai_disc_model, seis_disc_model], gen_model)
 
-    generator_loss = keras.losses.MeanSquareError()
+    generator_loss = keras.losses.MeanSquaredError()
     discriminator_loss = keras.losses.BinaryCrossentropy()
 
     model.compile(keras.optimizers.Adam(lr=lr, clipnorm=1.), g_loss=generator_loss, d_loss=discriminator_loss)
