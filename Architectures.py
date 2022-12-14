@@ -790,4 +790,6 @@ class multi_task_GAN(Model):
                 'discriminator_X_loss': disc_X_loss,
                 'discriminator_y_loss': disc_y_loss
                 }
-        
+    
+    def call(self, input):
+        return self.generator(input)
