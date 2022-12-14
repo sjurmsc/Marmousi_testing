@@ -536,8 +536,10 @@ def compiled_TCN(training_data, config, **kwargs):
 
     model = multi_task_GAN([ai_disc_model, seis_disc_model], gen_model)
 
-    model.compile(keras.optimizers.Adam(lr=lr, clipnorm=1.), loss={'regression_output' : 'mean_squared_error',
-                                                                           'reconstruction_output' : 'mean_squared_error'})
+    generator_loss = keras.losses.MeanSquareError()
+    discriminator_loss = keras.losses.BinaryCrossentropy()
+
+    model.compile(keras.optimizers.Adam(lr=lr, clipnorm=1.), g_loss=generator_loss, d_loss=discriminator_loss)
     
 
     print(model.summary())
@@ -730,12 +732,12 @@ class multi_task_GAN(Model):
             disc_fake_y = self.ai_discriminator(fake_y, training=True)
 
             # Generator loss
-            gen_X_loss = self.gen_seis_loss(disc_fake_X)
-            gen_y_loss = self.gen_ai_loss(disc_fake_y)
+            gen_X_loss = self.g_loss(disc_fake_X)
+            gen_y_loss = self.g_loss(disc_fake_y)
 
             # Discriminator loss
-            disc_X_loss = self.disc_seis_loss(disc_real_X, disc_fake_X)
-            disc_y_loss = self.disc_ai_loss(disc_real_y, disc_fake_y)
+            disc_X_loss = self.d_loss(disc_real_X, disc_fake_X)
+            disc_y_loss = self.d_loss(disc_real_y, disc_fake_y)
 
         print('\nGenerator\n')
         print(self.generator.trainable_variables)
