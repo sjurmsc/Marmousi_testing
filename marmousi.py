@@ -59,7 +59,7 @@ config['batch_size']            = 20
 config['epochs']                = 8
 
 split = len(seis)//2
-train = seis[:split]
+train = [seis[:split], ai[:split]]
 test = seis[split:]
 
 model, History = compiled_TCN(train, config=config)
