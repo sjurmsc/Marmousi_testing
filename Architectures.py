@@ -743,9 +743,9 @@ class multi_task_GAN(Model):
             disc_fake_y = self.ai_discriminator(fake_y, training=True)
 
             X_predictions = tf.concat([disc_real_X, disc_fake_X], axis=0)
-            X_truth       = tf.concat([tf.ones((batch_size, 1)), tf.zeros((batch_size, 1))])
+            X_truth       = tf.concat([tf.ones((batch_size, 1)), tf.zeros((batch_size, 1))], axis=0)
             y_predictions = tf.concat([disc_real_y, disc_fake_y], axis=0)
-            y_truth       = tf.concat([tf.ones((batch_size, 1)), tf.zeros((batch_size, 1))])
+            y_truth       = tf.concat([tf.ones((batch_size, 1)), tf.zeros((batch_size, 1))], axis=0)
             # Discriminator loss
             disc_X_loss = self.d_loss(X_truth, X_predictions)
             disc_y_loss = self.d_loss(y_truth, y_predictions)
@@ -769,9 +769,9 @@ class multi_task_GAN(Model):
             disc_real_y = self.ai_discriminator(real_y, training=True)
             disc_fake_y = self.ai_discriminator(fake_y, training=True)
             X_predictions = tf.concat([disc_real_X, disc_fake_X], axis=0)
-            bad_X_truth   = tf.concat([tf.ones((batch_size, 1)), tf.ones((batch_size, 1))])
+            bad_X_truth   = tf.concat([tf.ones((batch_size, 1)), tf.ones((batch_size, 1))], axis=0)
             y_predictions = tf.concat([disc_real_y, disc_fake_y], axis=0)
-            bad_y_truth   = tf.concat([tf.ones((batch_size, 1)), tf.ones((batch_size, 1))])
+            bad_y_truth   = tf.concat([tf.ones((batch_size, 1)), tf.ones((batch_size, 1))], axis=0)
             # Generator loss
             g_loss = self.g_loss([real_y, real_X], [fake_y, fake_X])
             dX_loss = self.d_loss(bad_X_truth, X_predictions)
