@@ -530,8 +530,8 @@ def compiled_TCN(training_data, config, **kwargs):
                       outputs = output_layer)
     
 
-    seis_disc_model = discriminator(output_layer[1].shape, 3, name='seismic_discriminator')
-    ai_disc_model = discriminator(output_layer[0].shape, 3, name='ai_discriminator')
+    seis_disc_model = discriminator(output_layer[1].shape[1:], 3, name='seismic_discriminator')
+    ai_disc_model = discriminator(output_layer[0].shape[1:], 3, name='ai_discriminator')
 
 
     model = multi_task_GAN([ai_disc_model, seis_disc_model], gen_model)
