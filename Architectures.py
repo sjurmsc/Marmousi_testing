@@ -746,14 +746,6 @@ class multi_task_GAN(Model):
             disc_X_loss = self.disc_seis_loss(disc_real_X, disc_fake_X)
             disc_y_loss = self.disc_ai_loss(disc_real_y, disc_fake_y)
 
-        print('\nGenerator\n')
-        print(len(self.generator.trainable_variables))
-        print(gen_y_loss.shape)
-        print(gen_X_loss.shape)
-        print('\nDiscriminator\n')
-        print(len(self.seismic_discriminator.trainable_variables))
-        print(tf.shape(disc_X_loss))
-
         # Get the gradients
         gen_X_grads = tape.gradient(gen_X_loss, self.generator.trainable_variables)
         gen_y_grads = tape.gradient(gen_y_loss, self.generator.trainable_variables)
