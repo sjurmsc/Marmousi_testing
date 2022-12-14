@@ -494,31 +494,21 @@ def compiled_TCN(training_data, config, **kwargs):
             name='Feature_recognition_module'
     )(input_layer)
     
-
     # Regression module
-    reg_ksize = y[0].shape[-1]/(nb_reg_stacks) + 1  # for 1d preserving the shape of the data
-    reg_ksize = int(reg_ksize)
     reg = CNN(nb_filters=nb_filters,
-            kernel_size=reg_ksize,
+            kernel_size=kernel_size,
             nb_stacks=nb_reg_stacks,
-            padding='valid',
+            padding='same',
             activation='tanh',
             convolution_type=convolution_type,
             kernel_initializer=kernel_initializer,
             name = 'Regression_module'
             )(x)
-
-    # reg = Flatten()(reg)
-    # reg = Dense(y[0].shape[1])(reg)
-    # reg = Activation('linear', name='regression_output')(reg)
     
     c_func = Conv1D
     if convolution_type == 'Conv2D': c_func = Conv2D # Not quite sure    
 
     reg = c_func(1, kernel_size, padding=padding, activation='linear', name='regression_output')(reg)
-    
-    # reg = Flatten()(reg)
-    # reg = Dense(y[0].shape[1], activation='linear')(reg)
 
     # Reconstruciton module
     rec = CNN(nb_filters=nb_filters,
@@ -531,10 +521,6 @@ def compiled_TCN(training_data, config, **kwargs):
             name = 'Reconstruction_module'
             )(x)
 
-
-    # rec = Flatten()(rec)
-    # rec = Dense(dense_output_shape)(rec)
-    # rec = Activation('linear', name='reconstruction_output')(rec)
 
     rec = c_func(1, kernel_size, padding=padding, activation='tanh', name='reconstruction_output')(rec)
 
