@@ -739,12 +739,12 @@ class multi_task_GAN(Model):
             disc_fake_y = self.ai_discriminator(fake_y, training=True)
 
             # Generator loss
-            gen_X_loss = self.g_loss(disc_fake_X)
-            gen_y_loss = self.g_loss(disc_fake_y)
+            gen_X_loss = self.gen_seis_loss(disc_fake_X)
+            gen_y_loss = self.gen_ai_loss(disc_fake_y)
 
             # Discriminator loss
-            disc_X_loss = self.d_loss(disc_real_X, disc_fake_X)
-            disc_y_loss = self.d_loss(disc_real_y, disc_fake_y)
+            disc_X_loss = self.disc_seis_loss(disc_real_X, disc_fake_X)
+            disc_y_loss = self.disc_ai_loss(disc_real_y, disc_fake_y)
 
         print('\nGenerator\n')
         print(self.generator.trainable_variables)
