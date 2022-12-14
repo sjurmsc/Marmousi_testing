@@ -712,14 +712,14 @@ class multi_task_GAN(Model):
         self.seismic_discriminator  = discriminators[1]
         self.ai_discriminator       = discriminators[0]
         self.generator              = generator
-        self.gen_seis_loss          = keras.metrics.Mean(name='generator_seismic_loss')
-        self.gen_ai_loss            = keras.metrics.Mean(name='generator_ai_loss')
-        self.disc_seis_loss         = keras.metrics.Mean(name='discriminator_seismic_loss')
-        self.disc_ai_loss           = keras.metrics.Mean(name='discriminator_ai_loss')
+        self.gen_seis_loss          = keras.metrics.Mean(name='gen_X_loss')
+        self.gen_ai_loss            = keras.metrics.Mean(name='gen_y_loss')
+        self.disc_seis_loss         = keras.metrics.Mean(name='disc_X_loss')
+        self.disc_ai_loss           = keras.metrics.Mean(name='disc_y_loss')
     
     @property
     def metrics(self):
-        pass
+        return [self.gen_seis_loss, self.gen_ai_loss, self.disc_seis_loss, self.disc_ai_loss]
 
     def compile(self, g_optimizer, d_optimizers, g_loss, d_loss, **kwargs):
         super(multi_task_GAN, self).compile(**kwargs)
