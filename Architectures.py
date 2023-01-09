@@ -9,11 +9,11 @@ from sklearn.ensemble import RandomForestRegressor
 from tensorflow import keras
 from keras import backend as K, Model, Input, optimizers, layers
 from keras.layers import Dense, Dropout, Conv1D, Conv2D, Layer, BatchNormalization, LayerNormalization
-from keras.layers import Activation, SpatialDropout1D, SpatialDropout2D, Lambda, Flatten
+from keras.layers import Activation, SpatialDropout1D, SpatialDropout2D, Lambda, Flatten, LeakyReLU
 from tensorflow_addons.layers import WeightNormalization
 from numpy import array
 from keras.utils.vis_utils import plot_model
-from Seismic_interp_ToolBox import _ai_to_reflectivity, reflectivity_to_ai
+
 
 class ResidualBlock(Layer):
     """
@@ -25,7 +25,7 @@ class ResidualBlock(Layer):
                  kernel_size,
                  padding: str,
                  activation: str = 'relu',
-                 convolution_type: str = 'Conv2D',
+                 convolution_func: str = Conv2D,
                  dropout_type: str ='spatial',
                  dropout_rate: float = 0.,
                  kernel_initializer: str = 'he_normal',
@@ -34,23 +34,36 @@ class ResidualBlock(Layer):
                  use_weight_norm: bool = False,
                  **kwargs): # Any initializers for the Layer class
         """
-        docstring here %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        Creates a residual block for use in a TCN
         """
-        if convolution_type == 'Conv2D':
+        # Checking whether dilations are a power of two
+        assert (dilation_rate != 0) & ((dilation_rate & (dilation_rate - 1)) == 0), \
+               'Dilations must be powers of 2'
+
+        if convolution_func == Conv2D:
+            self.dim = 2
+
+            # Dilations only occur in depth; See Mustafa et al. 2021
             self.dilation_rate = (1, dilation_rate) # Height, width
         else:
+            self.dim = 1
             self.dilation_rate = dilation_rate
+
         self.nb_filters = nb_filters
         self.kernel_size = kernel_size
+        self.kernel_initializer = kernel_initializer
+
         self.padding = padding
         self.activation = activation
-        self.convolution_type = convolution_type # My addition
-        self.dropout_type = dropout_type
+        self.convolution_func = convolution_func # function for use in convolution layers
+        self.dropout_type = dropout_type # Can be 'normal' or 'spatial'; decides what type of dropout layer is applied
         self.dropout_rate = dropout_rate
+
         self.use_batch_norm = use_batch_norm
         self.use_layer_norm = use_layer_norm
         self.use_weight_norm = use_weight_norm
-        self.kernel_initializer = kernel_initializer
+
+        # Variables to be filled
         self.layers = []
         self.shape_match_conv = None
         self.res_output_shape = None
@@ -73,29 +86,33 @@ class ResidualBlock(Layer):
         """
         self.layers.append(layer)
         self.layers[-1].build(self.res_output_shape)
+
+        # This looks suspicious
         self.res_output_shape = self.layers[-1].compute_output_shape(self.res_output_shape) # Not sure if compute output shape does anything here
 
     def build(self, input_shape):
-        if self.convolution_type.lower() == 'conv1d': c_func = Conv1D
-        else: c_func = Conv2D
 
-        with K.name_scope(self.name):
+        with K.name_scope(self.name): # Gets the name from **kwargs
+            
             self.layers = []
             self.res_output_shape = input_shape
 
             for k in range(2):
-                name = f'{self.convolution_type.lower()}_{k}'
+                name = f'{self.convolution_func.__name__}_{k}'
                 with K.name_scope(name):
-                    conv = c_func(
-                        filters=self.nb_filters,
-                        kernel_size=self.kernel_size,
-                        dilation_rate=self.dilation_rate,
-                        padding=self.padding,
-                        name=name,
-                        kernel_initializer=self.kernel_initializer
+
+                    # Check out inputs here
+                    conv = self.convolution_func(
+                                                 filters=self.nb_filters,
+                                                 kernel_size=self.kernel_size,
+                                                 dilation_rate=self.dilation_rate,
+                                                 padding=self.padding,
+                                                 name=name,
+                                                 kernel_initializer=self.kernel_initializer
                     )
                     if self.use_weight_norm:
                         from tensorflow_addons.layers import WeightNormalization
+
                         # WeightNormalization API is different than other Normalizations; requires wrapping
                         with K.name_scope('norm_{}'.format(k)):
                             conv = WeightNormalization(conv)
@@ -111,34 +128,30 @@ class ResidualBlock(Layer):
                         pass # Already done above
                 
                 with K.name_scope('act_and_dropout_{}'.format(k)):
-                    if self.convolution_type.lower() == 'conv1d':
-                        dim = 1
-                    elif self.convolution_type.lower() == 'conv2d':
-                        dim = 2
                     if self.dropout_type == 'normal':
                         d_func = Dropout
                         dname = 'Dropout'
                     if self.dropout_type == 'spatial':
                         dname = 'SDropout'
-                        if dim == 1:
+                        if self.dim == 1:
                             d_func = SpatialDropout1D
-                        elif dim == 2:
+                        elif self.dim == 2:
                             d_func = SpatialDropout2D
 
-                    self._build_layer(Activation(self.activation, name='Act_{}_{}'.format(self.convolution_type, k)))
-                    self._build_layer(d_func(rate=self.dropout_rate, name='{}{}D_{}'.format(dname, dim, k)))
+                    self._build_layer(Activation(self.activation, name='Act_{}_{}'.format(self.convolution_func.__name__, k)))
+                    self._build_layer(d_func(rate=self.dropout_rate, name='{}{}D_{}'.format(dname, self.dim, k)))
     
             if self.nb_filters != input_shape[-1]:
                 # 1x1 convolution mathes the shapes (channel dimension).
-                name = 'matching_conv1D'
+                name = 'matching_conv'
                 with K.name_scope(name):
 
-                    self.shape_match_conv = c_func(
+                    self.shape_match_conv = self.convolution_func(
                         filters=self.nb_filters,
                         kernel_size=1,
                         padding='same',
                         name=name,
-                        kernel_initializer=self.kernel_initializer
+                        kernel_initializer=self.kernel_initializer # Why initialize this kernel with the same initializer?
                     )
             else:
                 name = 'matching_identity'
@@ -148,6 +161,7 @@ class ResidualBlock(Layer):
                 self.shape_match_conv.build(input_shape)
                 self.res_output_shape = self.shape_match_conv.compute_output_shape(input_shape)
             
+            # Names of these layers should be investigated
             self._build_layer(Activation(self.activation, name='Act_Conv_Blocks'))
             self.final_activation = Activation(self.activation, name='Act_Res_Block')
             self.final_activation.build(self.res_output_shape) # According to philipperemy this probably is not be necessary
@@ -156,7 +170,7 @@ class ResidualBlock(Layer):
             for layer in self.layers:
                 self.__setattr__(layer.name, layer)
             self.__setattr__(self.shape_match_conv.name, self.shape_match_conv)
-            self.__setattr__(self.final_activation.name, self.final_activation)
+            self.__setattr__(self.final_activation.name, self.final_activation) # I think this fixes the name issue
 
             super(ResidualBlock, self).build(input_shape) # This to make sure self.built is set to True
 
@@ -186,7 +200,7 @@ class TCN(Layer):
                  dropout_rate=0.0,
                  return_sequences=False,
                  activation='relu',
-                 convolution_type = 'Conv2D',
+                 convolution_func = Conv2D,
                  kernel_initializer='he_normal',
                  use_batch_norm=False,
                  use_layer_norm=False,
@@ -200,14 +214,16 @@ class TCN(Layer):
         self.dilations = dilations
         self.nb_stacks = nb_stacks
         self.kernel_size = kernel_size
+        self.kernel_initializer = kernel_initializer
         self.nb_filters = nb_filters
         self.activation_name = activation
-        self.convolution_type = convolution_type
+        self.convolution_func = convolution_func
         self.padding = padding
-        self.kernel_initializer = kernel_initializer
+
         self.use_batch_norm = use_batch_norm
         self.use_layer_norm = use_layer_norm
         self.use_weight_norm = use_weight_norm
+
         self.skip_connections = []
         self.residual_blocks = []
         self.layers_outputs = []
@@ -220,14 +236,13 @@ class TCN(Layer):
             raise ValueError('Only one normalization can be specified at once.')
         
         if isinstance(self.nb_filters, list):
-            assert len(self.nb_filters) == len(self.dilations)
+            assert len(self.nb_filters) == len(self.dilations) # Change of filter amount coincide with padding
             if len(set(self.nb_filters)) > 1 and self.use_skip_connections:
                 raise ValueError('Skip connections are not compatible'
                                  'with a list of filters, unless they are all equal.')
         if padding != 'causal' and padding != 'same':
             raise ValueError('Only \'causal\' or \'same\' padding are compatible for this layer.')
         
-        # Initialize parent class (..which is Layer?)
         super(TCN, self).__init__(**kwargs)
     
     @property
@@ -236,6 +251,7 @@ class TCN(Layer):
 
     def build(self, input_shape):
 
+        # Makes sure the i/o dims of each block are the same
         self.build_output_shape = input_shape
 
         self.residual_blocks = []
@@ -254,7 +270,7 @@ class TCN(Layer):
                                                           kernel_size=self.kernel_size,
                                                           padding=self.padding,
                                                           activation=self.activation_name,
-                                                          convolution_type=self.convolution_type,
+                                                          convolution_func=self.convolution_func,
                                                           dropout_type=self.dropout_type,
                                                           dropout_rate=self.dropout_rate,
                                                           use_batch_norm=self.use_batch_norm,
@@ -335,7 +351,7 @@ class TCN(Layer):
         config['dropout_rate'] = self.dropout_rate
         config['return_sequences'] = self.return_sequences
         config['activation'] = self.activation_name
-        config['convolution_type'] = self.convolution_type # May need another name
+        config['convolution_func'] = self.convolution_func
         config['use_batch_norm'] = self.use_batch_norm
         config['use_layer_norm'] = self.use_layer_norm
         config['use_weight_norm'] = self.use_weight_norm
@@ -351,10 +367,9 @@ class CNN(Layer):
                 nb_stacks=3,
                 padding='same',
                 activation='relu',
-                convolution_type = 'Conv2D',
+                convolution_func = Conv2D,
                 kernel_initializer='he_normal',
                 dropout_rate = 0.001,
-                dilations = [1, 2, 4, 8],
                 use_dropout = False,
                 use_batch_norm=False,
                 use_layer_norm=False,
@@ -365,9 +380,8 @@ class CNN(Layer):
         self.kernel_size = kernel_size
         self.nb_stacks = nb_stacks
         self.padding = padding
-        self.dilations = dilations
         self.activation = activation
-        self.convolution_type = convolution_type
+        self.convolution_func = convolution_func
         self.kernel_initializer = kernel_initializer
         self.dropout_rate = dropout_rate
         self.use_dropout = use_dropout
@@ -382,10 +396,6 @@ class CNN(Layer):
         self.layers_outputs = []
         self.build_output_shape = None
 
-        self.conv_func = Conv2D
-        if convolution_type == 'Conv1D':
-            self.conv_func = Conv1D
-
         super(CNN, self).__init__(**kwargs)
 
         
@@ -397,15 +407,14 @@ class CNN(Layer):
         self.conv_blocks = []
 
         for k in range(self.nb_stacks):
-            for i, d in enumerate(self.dilations):
+            for i, f in enumerate([self.nb_filters]):
                 conv_filters = self.nb_filters[i] if isinstance(self.nb_filters, list) else self.nb_filters
-                self.conv_blocks.append(self.conv_func(filters=conv_filters, 
-                                                    kernel_size=self.kernel_size,
-                                                    padding = self.padding,
-                                                    activation=self.activation,
-                                                    kernel_initializer=self.kernel_initializer,
-                                                    dilation_rate=d,
-                                                    name='convolution_layer_{}'.format(len(self.conv_blocks))))
+                self.conv_blocks.append(self.convolution_func(filters=conv_filters, 
+                                                              kernel_size=self.kernel_size,
+                                                              padding = self.padding,
+                                                              activation=self.activation,
+                                                              kernel_initializer=self.kernel_initializer,
+                                                              name='convolution_layer_{}'.format(len(self.conv_blocks))))
         
         for layer in self.conv_blocks:
             self.__setattr__(layer.name, layer)
@@ -429,7 +438,7 @@ class CNN(Layer):
         config['nb_stacks'] = self.nb_stacks
         config['padding'] = self.padding
         config['activation'] = self.activation
-        config['convolution_type'] = self.convolution_type
+        config['convolution_func'] = self.convolution_func
         config['kernel_initializer'] = self.kernel_initializer
         config['use_batch_norm'] = self.use_batch_norm
         config['use_layer_norm'] = self.use_layer_norm

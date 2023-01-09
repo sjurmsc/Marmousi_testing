@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from Seismic_interp_ToolBox import ai_to_reflectivity
 import numpy as np
 import sys
+from tensorflow.keras.layers import Conv1D
 # import segyio
 files = dict()
 # files['Marmousi'] =  {'density'  : 'Marmousi_data/density_marmousi-ii.segy', 'velocity' : 'Marmousi_data/vp_marmousi-ii.segy'}
@@ -47,7 +48,7 @@ config['dropout_type']          = 'normal'
 config['dropout_rate']          = 0.03
 config['return_sequences']      = True
 config['activation']            = 'relu'
-config['convolution_type']      = 'Conv1D'
+config['convolution_func']      = Conv1D
 config['learn_rate']            = 0.001
 config['kernel_initializer']    = 'he_normal'
 
