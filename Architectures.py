@@ -543,7 +543,7 @@ def compiled_TCN(training_data, config, **kwargs):
     ai_disc_optimizer   = keras.optimizers.Adam(lr=lr*0.2, clipnorm=1.)
 
     model.compile(g_optimizer=generator_optimizer, 
-                  d_optimizers=ai_disc_optimizer, 
+                  d_optimizer=ai_disc_optimizer, 
                   g_loss=generator_loss, 
                   d_loss=discriminator_loss)
     
