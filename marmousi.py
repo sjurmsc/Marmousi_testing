@@ -35,7 +35,7 @@ for i, trace in enumerate(ai):
 seis = np.array(seis)
 slopes = np.array(slopes)
 
-seis = np.load('Data_dumps/seis1.npy')
+# seis = np.load('Data_dumps/seis1.npy')
 
 
 config = dict()
