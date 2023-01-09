@@ -517,7 +517,7 @@ def compiled_TCN(training_data, config, **kwargs):
     
 
 
-    ai_disc_model = discriminator(output_layer[0].shape[1:], 3, name='ai_discriminator')
+    ai_disc_model = discriminator(output_layer.shape[1:], 3, name='ai_discriminator')
 
 
     model = multi_task_GAN(ai_disc_model, gen_model)
