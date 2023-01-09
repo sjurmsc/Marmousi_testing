@@ -36,7 +36,7 @@ sys.stdout.flush()
 
 seis = np.array(seis)
 slopes = np.array(slopes)
-
+np.save('Data_dumps/SEAM_seismic.npy', seis)
 # seis = np.load('Data_dumps/seis1.npy')
 
 
