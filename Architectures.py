@@ -504,7 +504,7 @@ def compiled_TCN(training_data, config, **kwargs):
             name='Feature_recognition_module'
     )(input_layer)
     
-    print('receptive field is: {}'.format(x.receptive_field()))
+    # print('receptive field is: {}'.format(x.receptive_field()))
 
     # Regression module
     reg_ksize = y[0].shape[-1]/(nb_reg_stacks) + 1  # for 1d preserving the shape of the data
