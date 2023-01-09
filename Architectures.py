@@ -510,31 +510,17 @@ def compiled_TCN(training_data, config, **kwargs):
 
     reg = c_func(1, kernel_size, padding=padding, activation='linear', name='regression_output')(reg)
 
-    # Reconstruciton module
-    rec = CNN(nb_filters=nb_filters,
-            kernel_size=kernel_size,
-            nb_stacks=nb_rec_stacks,
-            padding=padding,
-            activation=activation,
-            convolution_type=convolution_type,
-            kernel_initializer=kernel_initializer,
-            name = 'Reconstruction_module'
-            )(x)
-
-
-    rec = c_func(1, kernel_size, padding=padding, activation='linear', name='reconstruction_output')(rec)
-
-    output_layer = [reg, rec] # Regression, reconstruction
+    output_layer = reg
 
     gen_model = Model(inputs = input_layer, 
                       outputs = output_layer)
     
 
-    seis_disc_model = discriminator(output_layer[1].shape[1:], 3, name='seismic_discriminator')
+
     ai_disc_model = discriminator(output_layer[0].shape[1:], 3, name='ai_discriminator')
 
 
-    model = multi_task_GAN([ai_disc_model, seis_disc_model], gen_model)
+    model = multi_task_GAN(ai_disc_model, gen_model)
 
     generator_loss = keras.losses.MeanSquaredError()
     discriminator_loss = keras.losses.BinaryCrossentropy()
@@ -745,7 +731,6 @@ class multi_task_GAN(Model):
             fake_y = self.generator(real_X)
             y_predictions = self.ai_discriminator(fake_y)
 
-            misleading_X_truth   = tf.zeros((batch_size, 1))
             misleading_y_truth   = tf.zeros((batch_size, 1))
 
             # Generator loss
