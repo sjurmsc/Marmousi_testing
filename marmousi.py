@@ -45,7 +45,7 @@ config['dilations']             = [1, 2, 4, 8, 16, 32, 64]
 config['padding']               = 'same'
 config['use_skip_connections']  = True
 config['dropout_type']          = 'normal'
-config['dropout_rate']          = 0.03
+config['dropout_rate']          = 0.01
 config['return_sequences']      = True
 config['activation']            = 'relu'
 config['convolution_func']      = Conv1D
@@ -65,7 +65,7 @@ config['nb_reg_stacks']         = 5
 config['nb_rec_stacks']         = 3 
 
 config['batch_size']            = 20
-config['epochs']                = 100
+config['epochs']                = 500
 
 split = len(seis)//2
 train = [seis[:split], [ai[:split], seis[:split]]]
