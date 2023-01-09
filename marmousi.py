@@ -51,7 +51,10 @@ config['activation']            = 'relu'
 config['convolution_func']      = Conv1D
 config['learn_rate']            = 0.001
 config['kernel_initializer']    = 'he_normal'
+
 config['use_adversaries']       = True
+config['alpha']                 = 0.6
+config['beta']                  = 0.4
 
 config['use_batch_norm']        = False
 config['use_layer_norm']        = False
@@ -59,7 +62,7 @@ config['use_weight_norm']       = True
 
 config['nb_tcn_stacks']         = 3
 config['nb_reg_stacks']         = 5
-config['nb_rec_stacks']         = 3  
+config['nb_rec_stacks']         = 3 
 
 config['batch_size']            = 20
 config['epochs']                = 20
