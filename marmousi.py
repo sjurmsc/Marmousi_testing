@@ -51,6 +51,7 @@ config['activation']            = 'relu'
 config['convolution_func']      = Conv1D
 config['learn_rate']            = 0.001
 config['kernel_initializer']    = 'he_normal'
+config['use_adversaries']       = True
 
 config['use_batch_norm']        = False
 config['use_layer_norm']        = False
