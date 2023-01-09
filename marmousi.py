@@ -28,7 +28,7 @@ dt = w['dt']
 seis = []
 slopes = []
 for i, trace in enumerate(ai):
-    sys.stdout(str(i))
+    sys.stdout.write(str(i))
     refl, slope = ai_to_reflectivity(trace)
     s = np.convolve(refl, wavelet, mode='same')
     seis.append(s)
