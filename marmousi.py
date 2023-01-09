@@ -5,11 +5,9 @@ from Seismic_interp_ToolBox import ai_to_reflectivity
 import numpy as np
 import sys
 # import segyio
-
-files = {# 'Marmousi' : {'density'  : 'Marmousi_data/density_marmousi-ii.segy',
-         #              'velocity' : 'Marmousi_data/vp_marmousi-ii.segy'},
-         'SEAM' : {'density'      : 'SEAM_data/SEAM_Den_Elastic_N23900.sgy',
-                   'velocity'     : 'SEAM_data/SEAM_Vp_Elastic_N23900.sgy'}}
+files = dict()
+files['Marmousi'] =  {'density'  : 'Marmousi_data/density_marmousi-ii.segy', 'velocity' : 'Marmousi_data/vp_marmousi-ii.segy'}
+files['SEAM']     =  {'density'      : 'SEAM_data/SEAM_Den_Elastic_N23900.sgy', 'velocity'     : 'SEAM_data/SEAM_Vp_Elastic_N23900.sgy'}
 
 depth = 10000
 
