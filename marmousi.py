@@ -68,7 +68,7 @@ config['epochs']                = 50
 
 split = len(seis)//2
 train = [seis[:split], ai[:split]]
-test =  [seis[split:], ai[split:]]
+test =  seis[split:]
 
 model, History = compiled_TCN(train, config=config)
 #model.save('model')
