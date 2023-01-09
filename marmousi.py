@@ -78,7 +78,7 @@ pred = np.array(pred)
 pred = pred.reshape(pred.shape[:-1])
 # np.save('Data_dumps/pred', pred)
 fig, (upper_ax, lower_ax) = plt.subplots(2)
-upper_ax.imshow(pred.T, cmap='Spectral')
+upper_ax.imshow(pred[0].T, cmap='Spectral')
 lower_ax.imshow(ai[split:].T, cmap='Spectral')
 plt.show()
 
