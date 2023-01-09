@@ -67,7 +67,7 @@ split = len(seis)//2
 train = [seis[:split], ai[:split]]
 test = seis[split:]
 
-#model, History = compiled_TCN(train, config=config)
+model, History = compiled_TCN(train, config=config)
 #model.save('model')
 pred = model.predict(test)
 #pred = pred.reshape(pred.shape[:-1])
