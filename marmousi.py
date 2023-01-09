@@ -65,7 +65,7 @@ config['nb_reg_stacks']         = 5
 config['nb_rec_stacks']         = 3 
 
 config['batch_size']            = 20
-config['epochs']                = 20
+config['epochs']                = 100
 
 split = len(seis)//2
 train = [seis[:split], [ai[:split], seis[:split]]]
@@ -81,7 +81,7 @@ fig, axs = plt.subplots(2, 2)
 axs[0, 0].imshow(pred[0].T, cmap='Spectral')
 axs[1, 0].imshow(ai[split:].T, cmap='Spectral')
 axs[0, 1].imshow(pred[1].T, cmap='seismic')
-axs[1, 1].imshow(seis[split:], cmap='seismic')
+axs[1, 1].imshow(seis[split:].T, cmap='seismic')
 plt.show()
 
 
