@@ -15,7 +15,7 @@ depth = 10000
 
 dataset = 'SEAM'
 
-density, rho_z =    get_traces(files[dataset]['density'], zrange=(None, depth))
+density, rho_z =    get_traces(files[dataset]['density'],  zrange=(None, depth))
 velocity, v_z =     get_traces(files[dataset]['velocity'], zrange=(None, depth))
 
 ai = density*velocity

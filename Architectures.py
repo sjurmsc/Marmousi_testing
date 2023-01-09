@@ -630,7 +630,7 @@ def unsupervised_Marmousi(train_data, config, **kwargs):
 
     model = Model(inputs = input_layer, 
                   outputs = output_layer)
-    model.compile(keras.optimizers.Adam(lr=lr, clipnorm=1.), loss=conv_refl_loss)
+    # model.compile(keras.optimizers.Adam(lr=lr, clipnorm=1.), loss=conv_refl_loss)
 
     print(model.summary())
 
@@ -659,32 +659,32 @@ import tensorflow as tf
 # from keras.backend import conv1d
 from tensorflow.nn import convolution
 
-w = np.load('Marmousi_data/wavelet_Marmousi.npz')['wavelet']
-#wavelet = tf.convert_to_tensor(w, tf.float32)
-wavelet = tf.constant(w, shape=[len(w), 1, 1, 1], dtype=tf.float32)
+# w = np.load('Marmousi_data/wavelet_Marmousi.npz')['wavelet']
+# wavelet = tf.convert_to_tensor(w, tf.float32)
+# wavelet = tf.constant(w, shape=[len(w), 1, 1, 1], dtype=tf.float32)
 
-def conv_ai_loss(y_true, y_pred):
-    """
-    takes the predicted acoustic impedance, and convolves it to see if it matches the seismic
-    """
-    y_refl = _ai_to_reflectivity(y_pred)
-    shp = tf.shape(y_refl)
-    y_refl = tf.reshape(y_refl, (shp[0], shp[1], 1, 1))
-    y_pred_seis = convolution(y_refl, wavelet, padding='VALID')
-    print(y_pred_seis.shape)
-    y_pred_seis = tf.reshape(y_pred_seis, (shp[0], shp[1]))
-    return mean_squared_error(y_true, y_pred_seis)
+# def conv_ai_loss(y_true, y_pred):
+#     """
+#     takes the predicted acoustic impedance, and convolves it to see if it matches the seismic
+#     """
+#     y_refl = _ai_to_reflectivity(y_pred)
+#     shp = tf.shape(y_refl)
+#     y_refl = tf.reshape(y_refl, (shp[0], shp[1], 1, 1))
+#     y_pred_seis = convolution(y_refl, wavelet, padding='VALID')
+#     print(y_pred_seis.shape)
+#     y_pred_seis = tf.reshape(y_pred_seis, (shp[0], shp[1]))
+#     return mean_squared_error(y_true, y_pred_seis)
 
 
-def conv_refl_loss(y_true, y_pred):
-    """
-    takes the predicted acoustic impedance, and convolves it to see if it matches the seismic
-    """
-    shp = tf.shape(y_pred)
-    y_refl = tf.reshape(y_pred, (shp[0], shp[1], 1, 1))
-    y_pred_seis = convolution(y_refl, wavelet, padding='SAME')
-    y_pred_seis = tf.reshape(y_pred_seis, (shp[0], shp[1]))
-    return mean_squared_error(y_true, y_pred_seis)
+# def conv_refl_loss(y_true, y_pred):
+#     """
+#     takes the predicted acoustic impedance, and convolves it to see if it matches the seismic
+#     """
+#     shp = tf.shape(y_pred)
+#     y_refl = tf.reshape(y_pred, (shp[0], shp[1], 1, 1))
+#     y_pred_seis = convolution(y_refl, wavelet, padding='SAME')
+#     y_pred_seis = tf.reshape(y_pred_seis, (shp[0], shp[1]))
+#     return mean_squared_error(y_true, y_pred_seis)
 
 
 
