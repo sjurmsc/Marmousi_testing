@@ -19,7 +19,6 @@ density, rho_z =    get_traces(files[dataset]['density'], zrange=(None, depth))
 velocity, v_z =     get_traces(files[dataset]['velocity'], zrange=(None, depth))
 
 ai = density*velocity
-print(ai)
 
 w = np.load('Marmousi_data/wavelet_Marmousi.npz')
 wavelet = w['wavelet']
@@ -28,7 +27,7 @@ dt = w['dt']
 seis = []
 slopes = []
 for i, trace in enumerate(ai):
-    sys.stdout.write(str(i))
+    sys.stdout.write('\r' + str(i))
     refl, slope = ai_to_reflectivity(trace)
     s = np.convolve(refl, wavelet, mode='same')
     seis.append(s)
