@@ -522,7 +522,7 @@ def compiled_TCN(training_data, config, **kwargs):
             )(x)
 
 
-    rec = c_func(1, kernel_size, padding=padding, activation='tanh', name='reconstruction_output')(rec)
+    rec = c_func(1, kernel_size, padding=padding, activation='linear', name='reconstruction_output')(rec)
 
     output_layer = [reg, rec] # Regression, reconstruction
 
@@ -540,8 +540,8 @@ def compiled_TCN(training_data, config, **kwargs):
     discriminator_loss = keras.losses.BinaryCrossentropy()
 
     generator_optimizer = keras.optimizers.Adam(lr=lr, clipnorm=1.)
-    seis_disc_optimizer = keras.optimizers.Adam(lr=lr, clipnorm=1.)
-    ai_disc_optimizer   = keras.optimizers.Adam(lr=lr, clipnorm=1.)
+    seis_disc_optimizer = keras.optimizers.Adam(lr=lr*0.2, clipnorm=1.)
+    ai_disc_optimizer   = keras.optimizers.Adam(lr=lr*0.2, clipnorm=1.)
 
     model.compile(g_optimizer=generator_optimizer, 
                   d_optimizers=[ai_disc_optimizer, seis_disc_optimizer], 
