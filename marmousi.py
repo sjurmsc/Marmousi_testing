@@ -9,7 +9,7 @@ files = dict()
 # files['Marmousi'] =  {'density'  : 'Marmousi_data/density_marmousi-ii.segy', 'velocity' : 'Marmousi_data/vp_marmousi-ii.segy'}
 files['SEAM']     =  {'density'      : 'SEAM_data/SEAM_Den_Elastic_N23900.sgy', 'velocity'     : 'SEAM_data/SEAM_Vp_Elastic_N23900.sgy'}
 
-depth = 10000
+depth = 10_000
 
 dataset = 'SEAM'
 

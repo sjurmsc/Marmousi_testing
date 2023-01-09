@@ -458,12 +458,13 @@ def compiled_TCN(training_data, config, **kwargs):
     dropout_rate            = config['dropout_rate']
     return_sequences        = config['return_sequences']
     activation              = config['activation']
-    convolution_type        = config['convolution_type']
-    lr                      = config['learn_rate']
+    convolution_func        = config['convolution_func']
+    learning_rate           = config['learn_rate']
     kernel_initializer      = config['kernel_initializer']
     use_batch_norm          = config['use_batch_norm']
     use_layer_norm          = config['use_layer_norm']
     use_weight_norm         = config['use_weight_norm']
+    use_adversaries         = config['use_adversaries']
 
     batch_size              = config['batch_size']
     epochs                  = config['epochs']
@@ -486,7 +487,7 @@ def compiled_TCN(training_data, config, **kwargs):
             dropout_rate=dropout_rate,
             return_sequences=return_sequences,
             activation=activation,
-            convolution_type=convolution_type,
+            convolution_func=convolution_func,
             kernel_initializer=kernel_initializer,
             use_batch_norm=use_batch_norm,
             use_layer_norm=use_layer_norm,
@@ -494,50 +495,71 @@ def compiled_TCN(training_data, config, **kwargs):
             name='Feature_recognition_module'
     )(input_layer)
     
+    print('receptive field is: {}'.format(x.receptive_field()))
+
     # Regression module
+    reg_ksize = y[0].shape[-1]/(nb_reg_stacks) + 1  # for 1d preserving the shape of the data
+    reg_ksize = int(reg_ksize)
     reg = CNN(nb_filters=nb_filters,
-            kernel_size=kernel_size,
+            kernel_size=reg_ksize,
             nb_stacks=nb_reg_stacks,
-            padding='same',
-            activation='tanh',
-            convolution_type=convolution_type,
+            padding='valid',
+            activation=activation,
+            convolution_func=convolution_func,
             kernel_initializer=kernel_initializer,
             name = 'Regression_module'
+            )(x)   
+
+    reg = convolution_func(1, kernel_size, padding=padding, activation='linear', name='regression_output')(reg)
+    
+    # Reconstruciton module
+    rec = CNN(nb_filters=nb_filters,
+            kernel_size=kernel_size,
+            nb_stacks=nb_rec_stacks,
+            padding=padding,
+            activation=activation,
+            convolution_func=convolution_func,
+            kernel_initializer=kernel_initializer,
+            name = 'Reconstruction_module'
             )(x)
-    
-    c_func = Conv1D
-    if convolution_type == 'Conv2D': c_func = Conv2D # Not quite sure    
-
-    reg = c_func(1, kernel_size, padding=padding, activation='linear', name='regression_output')(reg)
-
-    output_layer = reg
-
-    gen_model = Model(inputs = input_layer, 
-                      outputs = output_layer)
-    
 
 
-    ai_disc_model = discriminator(output_layer.shape[1:], 3, name='ai_discriminator')
+    rec = convolution_func(1, kernel_size, padding=padding, activation='linear', name='reconstruction_output')(rec)
+
+    output_layer = [reg, rec] # Regression, reconstruction
+
+    if use_adversaries:
+        seis_gen_model = Model(inputs=input_layer, outputs=rec)
+        ai_gen_model   = Model(inputs=input_layer, outputs=reg)
+        seis_disc_model = discriminator(output_layer[1].shape[1:], 3, name='seismic_discriminator')
+        ai_disc_model = discriminator(output_layer[0].shape[1:], 3, name='ai_discriminator')
 
 
-    model = multi_task_GAN(ai_disc_model, gen_model)
+        model = multi_task_GAN([ai_disc_model, seis_disc_model],
+                               [ai_gen_model, seis_gen_model], 
+                               alpha=config['alpha'],
+                               beta=config['beta'])
 
-    generator_loss = keras.losses.MeanSquaredError()
-    discriminator_loss = keras.losses.BinaryCrossentropy()
+        generator_loss = keras.losses.MeanSquaredError()
+        discriminator_loss = keras.losses.BinaryCrossentropy()
 
-    generator_optimizer = keras.optimizers.Adam(lr=lr, clipnorm=1.)
-    ai_disc_optimizer   = keras.optimizers.Adam(lr=lr*0.2, clipnorm=1.)
+        generator_optimizer = keras.optimizers.Adam(learning_rate=learning_rate, clipnorm=1.)
+        discriminator_optimizer = keras.optimizers.Adam(learning_rate=learning_rate*0.1, clipnorm=1.) # Discriminators learn more slowly
 
-    model.compile(g_optimizer=generator_optimizer, 
-                  d_optimizer=ai_disc_optimizer, 
-                  g_loss=generator_loss, 
-                  d_loss=discriminator_loss)
-    
-
-    
+        model.compile(g_optimizer=generator_optimizer, 
+                      d_optimizer=discriminator_optimizer, 
+                      g_loss=generator_loss, 
+                      d_loss=discriminator_loss)
+        # model.summary()
+    else:
+        model = Model(inputs = input_layer, 
+                  outputs = output_layer)
+        model.compile(keras.optimizers.Adam(learning_rate=learning_rate, clipnorm=1.), loss={'regression_output' : 'mean_squared_error',
+                                                                           'reconstruction_output' : 'mean_squared_error'})
+        model.summary()
 
     History = model.fit(x=X, y=y, batch_size=batch_size, epochs=epochs, **kwargs)
-    #print(model.summary())
+    
     return model, History
 
 
@@ -624,12 +646,18 @@ def unsupervised_Marmousi(train_data, config, **kwargs):
     return model, History
 
 
-def discriminator(Input_shape, depth, conv_dim=1, name='discriminator'):
+def discriminator(Input_shape, 
+                  depth = 4, 
+                  convolution_func=Conv1D, 
+                  dropout = 0.1, 
+                  name='discriminator'):
+
     input_layer = Input(Input_shape)
     x = input_layer
     for _ in range(depth):
-        x = Conv1D(1, kernel_size=4, padding='valid')(x)
+        x = convolution_func(1, kernel_size=4, padding='valid')(x)
         x = layers.BatchNormalization(scale=False)(x)
+        x = Dropout(rate = dropout)(x)
         x = layers.LeakyReLU()(x)
     x = layers.Flatten()(x)
     output_score = Dense(1, activation='sigmoid')(x)
