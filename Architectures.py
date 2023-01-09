@@ -724,8 +724,7 @@ class multi_task_GAN(Model):
     def train_step(self, batch_data):
         batch_size = tf.shape(batch_data)[1]
         real_X, real_y = batch_data
-        # real_X = tf.reshape(real_X, (*real_X.shape, 1))
-        # real_y = tf.reshape(real_y, (*real_y.shape, 1))
+        
 
         with tf.GradientTape(persistent=True) as tape:
             fake_y, fake_X = self.generator(real_X, training=True)
@@ -754,17 +753,15 @@ class multi_task_GAN(Model):
             zip(disc_y_grads, self.ai_discriminator.trainable_variables)
         )
 
-
         with tf.GradientTape(persistent=True) as tape:
-            fake_y, fake_X = self.generator(real_X)
-            X_predictions = self.seismic_discriminator(fake_X)
+            fake_y = self.generator(real_X)
             y_predictions = self.ai_discriminator(fake_y)
 
             misleading_X_truth   = tf.zeros((batch_size, 1))
             misleading_y_truth   = tf.zeros((batch_size, 1))
 
             # Generator loss
-            g_loss = self.g_loss([real_y, real_X], [fake_y, fake_X])
+            g_loss = self.g_loss(real_y, fake_y)
             dX_loss = self.d_loss(misleading_X_truth, X_predictions)
             dy_loss = self.d_loss(misleading_y_truth, y_predictions)
             gen_loss = g_loss + dX_loss + dy_loss
