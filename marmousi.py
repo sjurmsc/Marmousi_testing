@@ -39,7 +39,7 @@ ai = density*velocity
 # np.save('Data_dumps/SEAM_seismic.npy', seis)
 seis = np.load('Data_dumps/SEAM_seismic.npy')
 
-
+print(seis.shape, ai.shape)
 
 config = dict()
 config['nb_filters']            = [3, 3, 5, 5, 5, 5, 5]
