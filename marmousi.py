@@ -72,6 +72,7 @@ test =  seis[split:]
 model, History = compiled_TCN(train, config=config)
 #model.save('model')
 pred = model.predict(test)
+pred = np.array(pred)
 pred = pred.reshape(pred.shape[:-1])
 np.save('Data_dumps/pred', pred)
 plt.imshow(pred[0].T, cmap='Spectral')
