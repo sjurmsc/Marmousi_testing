@@ -540,11 +540,10 @@ def compiled_TCN(training_data, config, **kwargs):
     discriminator_loss = keras.losses.BinaryCrossentropy()
 
     generator_optimizer = keras.optimizers.Adam(lr=lr, clipnorm=1.)
-    seis_disc_optimizer = keras.optimizers.Adam(lr=lr*0.2, clipnorm=1.)
     ai_disc_optimizer   = keras.optimizers.Adam(lr=lr*0.2, clipnorm=1.)
 
     model.compile(g_optimizer=generator_optimizer, 
-                  d_optimizers=[ai_disc_optimizer, seis_disc_optimizer], 
+                  d_optimizers=ai_disc_optimizer, 
                   g_loss=generator_loss, 
                   d_loss=discriminator_loss)
     
@@ -705,19 +704,17 @@ def create_discriminator():
 
 class multi_task_GAN(Model):
 
-    def __init__(self, discriminators, generator):
+    def __init__(self, discriminator, generator):
         """
         """
         super(multi_task_GAN, self).__init__()
-        self.seismic_discriminator  = discriminators[1]
-        self.ai_discriminator       = discriminators[0]
+        self.ai_discriminator       = discriminator
         self.generator              = generator
 
-    def compile(self, g_optimizer, d_optimizers, g_loss, d_loss, **kwargs):
+    def compile(self, g_optimizer, d_optimizer, g_loss, d_loss, **kwargs):
         super(multi_task_GAN, self).compile(**kwargs)
         self.g_optimizer    = g_optimizer
-        self.d_X_optimizer  = d_optimizers[1]
-        self.d_y_optimizer  = d_optimizers[0]
+        self.d_y_optimizer  = d_optimizer
         self.g_loss         = g_loss
         self.d_loss         = d_loss
     
@@ -727,28 +724,19 @@ class multi_task_GAN(Model):
         
 
         with tf.GradientTape(persistent=True) as tape:
-            fake_y, fake_X = self.generator(real_X, training=True)
-            disc_real_X = self.seismic_discriminator(real_X, training=True)
-            disc_fake_X = self.seismic_discriminator(fake_X, training=True)
+            fake_y = self.generator(real_X, training=True)
             disc_real_y = self.ai_discriminator(real_y, training=True)
             disc_fake_y = self.ai_discriminator(fake_y, training=True)
-
-            X_predictions = tf.concat([disc_fake_X, disc_real_X], axis=0)
-            X_truth       = tf.concat([tf.ones((batch_size, 1)), tf.zeros((batch_size, 1))], axis=0)
             y_predictions = tf.concat([disc_fake_y, disc_real_y], axis=0)
             y_truth       = tf.concat([tf.ones((batch_size, 1)), tf.zeros((batch_size, 1))], axis=0)
+            
             # Discriminator loss
-            disc_X_loss = self.d_loss(X_truth, X_predictions)
             disc_y_loss = self.d_loss(y_truth, y_predictions)
         
         # Get discriminator gradients
-        disc_X_grads = tape.gradient(disc_X_loss, self.seismic_discriminator.trainable_variables)
         disc_y_grads = tape.gradient(disc_y_loss, self.ai_discriminator.trainable_variables)
 
         # Apply those gradients
-        self.d_X_optimizer.apply_gradients(
-            zip(disc_X_grads, self.seismic_discriminator.trainable_variables)
-        )
         self.d_y_optimizer.apply_gradients(
             zip(disc_y_grads, self.ai_discriminator.trainable_variables)
         )
@@ -762,9 +750,8 @@ class multi_task_GAN(Model):
 
             # Generator loss
             g_loss = self.g_loss(real_y, fake_y)
-            dX_loss = self.d_loss(misleading_X_truth, X_predictions)
             dy_loss = self.d_loss(misleading_y_truth, y_predictions)
-            gen_loss = g_loss + dX_loss + dy_loss
+            gen_loss = g_loss + dy_loss
 
         # Get the gradients
         gen_grads = tape.gradient(gen_loss, self.generator.trainable_variables)
@@ -776,7 +763,6 @@ class multi_task_GAN(Model):
 
         return {
                 'generator_loss'   : gen_loss,
-                'discriminator_X_loss': disc_X_loss,
                 'discriminator_y_loss': disc_y_loss
                 }
     
