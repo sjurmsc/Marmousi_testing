@@ -34,8 +34,38 @@ def reflectivity_to_ai(refl,slope=None,basevalue=1500):
         
     return ai
 
-
+from math import isclose
 def ai_to_reflectivity(ai,win=7,threshold=8e-4):
+    '''
+    Acoustic Impedance to Reflectivity
+    '''    
+    # compute reflectivity coeff
+    refl=np.zeros_like(ai)
+    for i in range(len(ai)-1):
+        if isclose((ai[i+1]+ai[i]), 0): continue
+        R=(ai[i+1]-ai[i])/(ai[i+1]+ai[i])
+        refl[i+1]=R
+      
+    ind=[]
+    for i in range(win,len(ai)-win):
+        for kk in range(1,win):
+            if (np.abs(refl[i]-refl[i-kk])<threshold) or (np.abs(refl[i]-refl[i+kk])<threshold):
+                ind.append(i)
+                break     
+    refl[ind]=0
+    
+    slope=np.zeros(np.shape(ai))
+    ind=np.where(np.abs(refl)>0)[0]
+    for iii in range(len(slope)-1):
+        slope[iii+1]=ai[iii+1]-ai[iii]
+    slope[ind]=0
+    
+    # for iii in range(0,len(ind)-1):
+    #     if ind[iii+1]-ind[iii]>1:
+    #         slope[ind[iii]+1:ind[iii+1]] = ai[ind[iii]+1]-ai[ind[iii]]
+    return refl,slope
+
+def _ai_to_reflectivity(ai,win=7,threshold=8e-4):
     '''
     Acoustic Impedance to Reflectivity
     '''

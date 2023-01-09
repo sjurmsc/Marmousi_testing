@@ -13,7 +13,7 @@ from keras.layers import Activation, SpatialDropout1D, SpatialDropout2D, Lambda,
 from tensorflow_addons.layers import WeightNormalization
 from numpy import array
 from keras.utils.vis_utils import plot_model
-from Seismic_interp_ToolBox import ai_to_reflectivity, reflectivity_to_ai
+from Seismic_interp_ToolBox import _ai_to_reflectivity, reflectivity_to_ai
 
 class ResidualBlock(Layer):
     """
@@ -667,7 +667,7 @@ def conv_ai_loss(y_true, y_pred):
     """
     takes the predicted acoustic impedance, and convolves it to see if it matches the seismic
     """
-    y_refl = ai_to_reflectivity(y_pred)
+    y_refl = _ai_to_reflectivity(y_pred)
     shp = tf.shape(y_refl)
     y_refl = tf.reshape(y_refl, (shp[0], shp[1], 1, 1))
     y_pred_seis = convolution(y_refl, wavelet, padding='VALID')
