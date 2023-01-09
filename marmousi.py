@@ -14,6 +14,8 @@ depth = 10000
 
 dataset = 'SEAM'
 
+print(files['dataset'])
+
 density, rho_z =    get_traces(files[dataset]['density'], zrange=(None, depth))
 velocity, v_z =     get_traces(files[dataset]['velocity'], zrange=(None, depth))
 
@@ -23,17 +25,17 @@ w = np.load('Marmousi_data/wavelet_Marmousi.npz')
 wavelet = w['wavelet']
 dt = w['dt']
 
-seis = []
-slopes = []
-for i, trace in enumerate(ai):
-    print(i)
-    refl, slope = ai_to_reflectivity(trace)
-    s = np.convolve(refl, wavelet, mode='same')
-    seis.append(s)
-    slopes.append(slope)
+# seis = []
+# slopes = []
+# for i, trace in enumerate(ai):
+#     print(i)
+#     refl, slope = ai_to_reflectivity(trace)
+#     s = np.convolve(refl, wavelet, mode='same')
+#     seis.append(s)
+#     slopes.append(slope)
 
-seis = np.array(seis)
-slopes = np.array(slopes)
+# seis = np.array(seis)
+# slopes = np.array(slopes)
 
 # seis = np.load('Data_dumps/seis1.npy')
 
@@ -67,7 +69,7 @@ split = len(seis)//2
 train = [seis[:split], ai[:split]]
 test = seis[split:]
 
-model, History = compiled_TCN(train, config=config)
+#model, History = compiled_TCN(train, config=config)
 #model.save('model')
 pred = model.predict(test)
 #pred = pred.reshape(pred.shape[:-1])
