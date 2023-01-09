@@ -64,9 +64,9 @@ config['nb_rec_stacks']         = 3
 config['batch_size']            = 20
 config['epochs']                = 8
 
-split = seis)//2
+split = len(seis)//2
 train = [seis[:split], ai[:split]]
-
+test =  [seis[split:], ai[split:]]
 
 model, History = compiled_TCN(train, config=config)
 #model.save('model')
