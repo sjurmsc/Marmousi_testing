@@ -64,7 +64,7 @@ config['nb_reg_stacks']         = 5
 config['nb_rec_stacks']         = 3  
 
 config['batch_size']            = 20
-config['epochs']                = 8
+config['epochs']                = 50
 
 split = len(seis)//2
 train = [seis[:split], ai[:split]]
@@ -75,8 +75,8 @@ model, History = compiled_TCN(train, config=config)
 pred = model.predict(test)
 #pred = pred.reshape(pred.shape[:-1])
 np.save('Data_dumps/pred', pred)
-#plt.imshow(pred[0].T, cmap='Spectral')
-#plt.show()
+plt.imshow(pred[0].T, cmap='Spectral')
+plt.show()
 
 
 
