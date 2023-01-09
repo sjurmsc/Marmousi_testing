@@ -18,6 +18,7 @@ density, rho_z =    get_traces(files[dataset]['density'], zrange=(None, depth))
 velocity, v_z =     get_traces(files[dataset]['velocity'], zrange=(None, depth))
 
 ai = density*velocity
+print(ai)
 
 w = np.load('Marmousi_data/wavelet_Marmousi.npz')
 wavelet = w['wavelet']
@@ -63,9 +64,9 @@ config['nb_rec_stacks']         = 3
 config['batch_size']            = 20
 config['epochs']                = 8
 
-split = len(seis)//2
+split = seis)//2
 train = [seis[:split], ai[:split]]
-test = seis[split:]
+
 
 model, History = compiled_TCN(train, config=config)
 #model.save('model')
