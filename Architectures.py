@@ -507,12 +507,12 @@ def compiled_TCN(training_data, config, **kwargs):
     # print('receptive field is: {}'.format(x.receptive_field()))
 
     # Regression module
-    reg_ksize = y[0].shape[-1]/(nb_reg_stacks) + 1  # for 1d preserving the shape of the data
-    reg_ksize = int(reg_ksize)
+    # reg_ksize = y[0].shape[-1]/(nb_reg_stacks) + 1  # for 1d preserving the shape of the data
+    # reg_ksize = int(reg_ksize)
     reg = CNN(nb_filters=nb_filters,
-            kernel_size=reg_ksize,
+            kernel_size=kernel_size,
             nb_stacks=nb_reg_stacks,
-            padding='valid',
+            padding='same',
             activation=activation,
             convolution_func=convolution_func,
             kernel_initializer=kernel_initializer,
