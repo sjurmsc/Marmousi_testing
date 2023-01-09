@@ -5,13 +5,17 @@ from Seismic_interp_ToolBox import ai_to_reflectivity
 import numpy as np
 # import segyio
 
-files = {'density'  : 'Marmousi_data/density_marmousi-ii.segy',
-         'velocity' : 'Marmousi_data/vp_marmousi-ii.segy'}
+files = {'Marmousi' : {'density'  : 'Marmousi_data/density_marmousi-ii.segy',
+                       'velocity' : 'Marmousi_data/vp_marmousi-ii.segy'},
+         'SEAM' : {'density'      : 'SEAM_data/SEAM_Den_Elastic_N23900.sgy',
+                   'velocity'     : 'SEAM_data/SEAM;_Vp_Elastic_N23900.sgy'}}
 
 depth = 10000
 
-density, rho_z =    get_traces(files['density'], zrange=(None, depth))
-velocity, v_z =     get_traces(files['velocity'], zrange=(None, depth))
+dataset = 'SEAM'
+
+density, rho_z =    get_traces(files[dataset]['density'], zrange=(None, depth))
+velocity, v_z =     get_traces(files[dataset]['velocity'], zrange=(None, depth))
 
 ai = density*velocity
 
@@ -19,17 +23,17 @@ w = np.load('Marmousi_data/wavelet_Marmousi.npz')
 wavelet = w['wavelet']
 dt = w['dt']
 
-# seis = []
-# slopes = []
-# for i, trace in enumerate(ai):
-#     print(i)
-#     refl, slope = ai_to_reflectivity(trace)
-#     s = np.convolve(refl, wavelet, mode='same')
-#     seis.append(s)
-#     slopes.append(slope)
+seis = []
+slopes = []
+for i, trace in enumerate(ai):
+    print(i)
+    refl, slope = ai_to_reflectivity(trace)
+    s = np.convolve(refl, wavelet, mode='same')
+    seis.append(s)
+    slopes.append(slope)
 
-# seis = np.array(seis)
-# slopes = np.array(slopes)
+seis = np.array(seis)
+slopes = np.array(slopes)
 
 seis = np.load('Data_dumps/seis1.npy')
 
