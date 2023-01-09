@@ -3,6 +3,7 @@ from Feat_aug import *
 import matplotlib.pyplot as plt
 from Seismic_interp_ToolBox import ai_to_reflectivity
 import numpy as np
+import sys
 # import segyio
 
 files = {'Marmousi' : {'density'  : 'Marmousi_data/density_marmousi-ii.segy',
@@ -27,11 +28,12 @@ dt = w['dt']
 seis = []
 slopes = []
 for i, trace in enumerate(ai):
-    print(i)
+    sys.stdout(str(i))
     refl, slope = ai_to_reflectivity(trace)
     s = np.convolve(refl, wavelet, mode='same')
     seis.append(s)
     slopes.append(slope)
+sys.stdout.flush()
 
 seis = np.array(seis)
 slopes = np.array(slopes)
