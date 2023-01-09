@@ -24,20 +24,20 @@ w = np.load('Marmousi_data/wavelet_Marmousi.npz')
 wavelet = w['wavelet']
 dt = w['dt']
 
-# seis = []
-# slopes = []
-# for i, trace in enumerate(ai):
-#     sys.stdout.write('\r' + str(i))
-#     refl, slope = ai_to_reflectivity(trace)
-#     s = np.convolve(refl, wavelet, mode='same')
-#     seis.append(s)
-#     slopes.append(slope)
-# sys.stdout.flush()
+seis = []
+slopes = []
+for i, trace in enumerate(ai):
+    sys.stdout.write('\r' + str(i))
+    refl, slope = ai_to_reflectivity(trace)
+    s = np.convolve(refl, wavelet, mode='same')
+    seis.append(s)
+    slopes.append(slope)
+sys.stdout.flush()
 
-# seis = np.array(seis)
-# slopes = np.array(slopes)
-# np.save('Data_dumps/SEAM_seismic.npy', seis)
-seis = np.load('Data_dumps/SEAM_seismic.npy')
+seis = np.array(seis)
+slopes = np.array(slopes)
+np.save('Data_dumps/SEAM_seismic.npy', seis)
+# seis = np.load('Data_dumps/SEAM_seismic.npy')
 
 
 config = dict()
