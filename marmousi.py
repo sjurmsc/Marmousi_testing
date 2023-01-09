@@ -37,7 +37,7 @@ dt = w['dt']
 # seis = np.array(seis)
 # slopes = np.array(slopes)
 # np.save('Data_dumps/SEAM_seismic.npy', seis)
-seis = np.load('Data_dumps/seis1.npy')
+seis = np.load('Data_dumps/SEAM_seismic.npy')
 
 
 config = dict()
