@@ -20,9 +20,9 @@ velocity, v_z =     get_traces(files[dataset]['velocity'], zrange=(None, depth))
 
 ai = density*velocity
 
-w = np.load('Marmousi_data/wavelet_Marmousi.npz')
-wavelet = w['wavelet']
-dt = w['dt']
+# w = np.load('Marmousi_data/wavelet_Marmousi.npz')
+# wavelet = w['wavelet']
+# dt = w['dt']
 
 # seis = []
 # slopes = []
@@ -38,6 +38,7 @@ dt = w['dt']
 # slopes = np.array(slopes)
 # np.save('Data_dumps/SEAM_seismic.npy', seis)
 seis = np.load('Data_dumps/SEAM_seismic.npy')
+
 
 
 config = dict()
@@ -66,7 +67,7 @@ config['batch_size']            = 20
 config['epochs']                = 2
 
 split = len(seis)//2
-train = [seis[:split], [ai[:split], seis[:split]]]
+train = [seis[:split], ai[:split]]
 test =  seis[split:]
 
 model, History = compiled_TCN(train, config=config)
@@ -74,7 +75,7 @@ model, History = compiled_TCN(train, config=config)
 pred = model.predict(test)
 pred = np.array(pred)
 pred = pred.reshape(pred.shape[:-1])
-np.save('Data_dumps/pred', pred)
+# np.save('Data_dumps/pred', pred)
 fig, (upper_ax, lower_ax) = plt.subplots(2)
 upper_ax.imshow(pred[0].T, cmap='Spectral')
 lower_ax.imshow(ai[split:].T, cmap='Spectral')
