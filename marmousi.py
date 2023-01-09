@@ -24,20 +24,20 @@ w = np.load('Marmousi_data/wavelet_Marmousi.npz')
 wavelet = w['wavelet']
 dt = w['dt']
 
-seis = []
-slopes = []
-for i, trace in enumerate(ai):
-    sys.stdout.write('\r' + str(i))
-    refl, slope = ai_to_reflectivity(trace)
-    s = np.convolve(refl, wavelet, mode='same')
-    seis.append(s)
-    slopes.append(slope)
-sys.stdout.flush()
+# seis = []
+# slopes = []
+# for i, trace in enumerate(ai):
+#     sys.stdout.write('\r' + str(i))
+#     refl, slope = ai_to_reflectivity(trace)
+#     s = np.convolve(refl, wavelet, mode='same')
+#     seis.append(s)
+#     slopes.append(slope)
+# sys.stdout.flush()
 
-seis = np.array(seis)
-slopes = np.array(slopes)
-np.save('Data_dumps/SEAM_seismic.npy', seis)
-# seis = np.load('Data_dumps/seis1.npy')
+# seis = np.array(seis)
+# slopes = np.array(slopes)
+# np.save('Data_dumps/SEAM_seismic.npy', seis)
+seis = np.load('Data_dumps/seis1.npy')
 
 
 config = dict()
@@ -75,7 +75,9 @@ pred = model.predict(test)
 pred = np.array(pred)
 pred = pred.reshape(pred.shape[:-1])
 np.save('Data_dumps/pred', pred)
-plt.imshow(pred[0].T, cmap='Spectral')
+fig, (upper_ax, lower_ax) = plt.subplots(2)
+upper_ax.imshow(pred[0].T, cmap='Spectral')
+lower_ax.imshow(ai[split:].T, cmap='Spectral')
 plt.show()
 
 
