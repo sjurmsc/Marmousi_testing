@@ -86,8 +86,8 @@ else: config['kernel_size'] = config['kernel_size'][1]
 #         test_X, test_y = test_data
 n_traces, trace_len = ai.shape
 r = np.floor(n_traces/config['group_traces']).astype(np.int)
-ai = ai[:r].reshape((r, config['group_traces'], trace_len))
-seis = seis[:r].reshape((r, config['group_traces'], trace_len))
+ai = ai[:r, :].reshape((r, config['group_traces'], trace_len))
+seis = seis[:r, :].reshape((r, config['group_traces'], trace_len))
 
 split = len(seis)//2
 train = [seis[:split], [ai[:split], seis[:split]]]
