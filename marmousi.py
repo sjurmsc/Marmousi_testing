@@ -40,7 +40,7 @@ seis = np.load('Data_dumps/SEAM_seismic.npy')
 
 config = dict()
 config['nb_filters']            = 8
-config['kernel_size']           = (7, 9) # Height, width
+config['kernel_size']           = (3, 9) # Height, width
 config['dilations']             = [1, 2, 4, 8, 16, 32, 64]
 config['padding']               = 'same'
 config['use_skip_connections']  = True
