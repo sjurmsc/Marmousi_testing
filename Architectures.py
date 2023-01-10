@@ -670,7 +670,7 @@ def discriminator(Input_shape,
     input_layer = Input(Input_shape)
     x = input_layer
     for _ in range(depth):
-        x = convolution_func(1, kernel_size=4, padding='valid')(x)
+        x = convolution_func(1, kernel_size=4, padding='same')(x)
         x = layers.BatchNormalization(scale=False)(x)
         x = Dropout(rate = dropout)(x)
         x = layers.LeakyReLU()(x)
