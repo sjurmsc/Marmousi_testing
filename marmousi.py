@@ -65,7 +65,7 @@ config['nb_reg_stacks']         = 5
 config['nb_rec_stacks']         = 3 
 
 config['batch_size']            = 20
-config['epochs']                = 100
+config['epochs']                = 1
 
 config['group_traces']          = 5
 
@@ -98,12 +98,15 @@ model, History = compiled_TCN(train, config=config)
 #model.save('model')
 pred = model.predict(test)
 pred = np.array(pred)
-pred = pred.reshape(pred.shape[:-1])
+ai_pred, seis_pred = pred
+
+ai_pred = ai_pred.reshape(split*config['group_traces'], trace_len)
+seis_pred = seis_pred.reshape(split*config['group_traces'], trace_len)
 # np.save('Data_dumps/pred', pred)
 fig, axs = plt.subplots(2, 2)
-axs[0, 0].imshow(pred[0].T, cmap='Spectral')
+axs[0, 0].imshow(ai_pred.T, cmap='Spectral')
 axs[1, 0].imshow(ai[split:].T, cmap='Spectral')
-axs[0, 1].imshow(pred[1].T, cmap='seismic')
+axs[0, 1].imshow(seis_pred.T, cmap='seismic')
 axs[1, 1].imshow(seis[split:].T, cmap='seismic')
 plt.show()
 
