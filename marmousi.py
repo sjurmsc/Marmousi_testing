@@ -85,8 +85,7 @@ else: config['kernel_size'] = config['kernel_size'][1]
 #                                                               truncate_data=0)
 #         test_X, test_y = test_data
 n_traces, trace_len = ai.shape
-r = np.floor(n_traces/config['group_traces'])
-print(r)
+r = np.floor(n_traces/config['group_traces']).astype(np.int)
 ai = ai[:r].reshape((r, trace_len, config['group_traces']))
 seis = seis[:r].reshape((r, trace_len, config['group_traces']))
 
