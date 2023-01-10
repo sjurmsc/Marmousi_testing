@@ -73,6 +73,22 @@ config['convolution_func']      = Conv1D
 if config['group_traces']>1: config['convolution_func'] = Conv2D
 else: config['kernel_size'] = config['kernel_size'][1]
 
+# if len(ai_datasets):
+#         train_data, test_data, scalers = sgy_to_keras_dataset([files['SEAM']['density']], 
+#                                                               [], 
+#                                                               fraction_data=0.01, 
+#                                                               test_size=0.8, 
+#                                                               group_traces=group_traces, 
+#                                                               X_normalize='StandardScaler',
+#                                                               y_normalize='MinMaxScaler',
+#                                                               shuffle=False,
+#                                                               truncate_data=0)
+#         test_X, test_y = test_data
+n_traces, trace_len = ai.shape
+r = np.floor(n_traces/config['group_traces'])
+ai = ai[:r, :].reshape((r, trace_len, config['group_traces']))
+seis = seis[:r, :].reshape((r, trace_len, config['group_traces']))
+
 split = len(seis)//2
 train = [seis[:split], [ai[:split], seis[:split]]]
 test =  seis[split:]
