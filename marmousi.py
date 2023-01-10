@@ -65,7 +65,7 @@ config['nb_reg_stacks']         = 5
 config['nb_rec_stacks']         = 3 
 
 config['batch_size']            = 20
-config['epochs']                = 500
+config['epochs']                = 100
 
 config['group_traces']          = 5
 
