@@ -40,7 +40,7 @@ seis = np.load('Data_dumps/SEAM_seismic.npy')
 
 config = dict()
 config['nb_filters']            = 8
-config['kernel_size']           = 7 # Height, width
+config['kernel_size']           = (5, 7) # Height, width
 config['dilations']             = [1, 2, 4, 8, 16, 32, 64]
 config['padding']               = 'same'
 config['use_skip_connections']  = True
@@ -48,7 +48,7 @@ config['dropout_type']          = 'normal'
 config['dropout_rate']          = 0.01
 config['return_sequences']      = True
 config['activation']            = 'relu'
-config['convolution_func']      = Conv1D
+
 config['learn_rate']            = 0.001
 config['kernel_initializer']    = 'he_normal'
 
@@ -66,6 +66,12 @@ config['nb_rec_stacks']         = 3
 
 config['batch_size']            = 20
 config['epochs']                = 500
+
+config['group_traces']          = 5
+
+config['convolution_func']      = Conv1D
+if config['group_traces']>1: config['convolution_func'] = Conv2D
+else: config['kernel_size'] = config['kernel_size'][1]
 
 split = len(seis)//2
 train = [seis[:split], [ai[:split], seis[:split]]]
