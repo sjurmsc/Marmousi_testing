@@ -39,7 +39,7 @@ ai = density*velocity
 seis = np.load('Data_dumps/SEAM_seismic.npy')
 
 config = dict()
-config['nb_filters']            = 8
+config['nb_filters']            = 16
 config['kernel_size']           = (3, 9) # Height, width
 config['dilations']             = [1, 2, 4, 8, 16, 32, 64]
 config['padding']               = 'same'
@@ -60,9 +60,9 @@ config['use_batch_norm']        = False
 config['use_layer_norm']        = False
 config['use_weight_norm']       = True
 
-config['nb_tcn_stacks']         = 3
+config['nb_tcn_stacks']         = 5
 config['nb_reg_stacks']         = 5
-config['nb_rec_stacks']         = 3 
+config['nb_rec_stacks']         = 5 
 
 config['batch_size']            = 20
 config['epochs']                = 100
