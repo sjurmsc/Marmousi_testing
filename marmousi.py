@@ -104,8 +104,8 @@ pred = model.predict(test)
 pred = np.array(pred)
 ai_pred, seis_pred = pred
 
-ai_pred = ai_pred.reshape(split*config['group_traces'], trace_len)
-seis_pred = seis_pred.reshape(split*config['group_traces'], trace_len)
+ai_pred = ai_pred.reshape((split-1)*config['group_traces'], trace_len)
+seis_pred = seis_pred.reshape(split(split-1)*config['group_traces'], trace_len)
 # np.save('Data_dumps/pred', pred)
 fig, axs = plt.subplots(2, 2)
 axs[0, 0].imshow(ai_pred.T, cmap='Spectral')
