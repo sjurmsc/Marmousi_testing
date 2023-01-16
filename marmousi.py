@@ -14,14 +14,14 @@ depth = 10_000
 
 dataset = 'SEAM'
 
-density, rho_z =    get_traces(files['SEAM']['density'],  zrange=(None, depth))
-velocity, v_z =     get_traces(files['SEAM']['velocity'], zrange=(None, depth))
+# density, rho_z =    get_traces(files['SEAM']['density'],  zrange=(None, depth))
+# velocity, v_z =     get_traces(files['SEAM']['velocity'], zrange=(None, depth))
 
-ai = density*velocity
+# ai = density*velocity
 
-w = np.load('Marmousi_data/wavelet_Marmousi.npz')
-wavelet = w['wavelet']
-dt = w['dt']
+# w = np.load('Marmousi_data/wavelet_Marmousi.npz')
+# wavelet = w['wavelet']
+# dt = w['dt']
 
 # seis = []
 # slopes = []
@@ -36,7 +36,11 @@ dt = w['dt']
 # seis = np.array(seis)
 # slopes = np.array(slopes)
 # np.save('Data_dumps/SEAM_seismic.npy', seis)
-seis = np.load('Data_dumps/SEAM_seismic.npy')
+# seis = np.load('Data_dumps/SEAM_seismic.npy')
+
+
+seis = np.load('SEAM_data/convolved_seismic.npz')['arr_0']
+ai = np.load('SEAM_data/ai_time_domain.npz')['arr_0']
 
 config = dict()
 config['nb_filters']            = 16
