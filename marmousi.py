@@ -43,13 +43,13 @@ seis = np.load('SEAM_data/convolved_seismic.npz')['arr_0']
 ai = np.load('SEAM_data/ai_time_domain.npz')['arr_0']
 
 config = dict()
-config['nb_filters']            = 16
+config['nb_filters']            = 8
 config['kernel_size']           = (3, 9) # Height, width
 config['dilations']             = [1, 2, 4, 8, 16, 32, 64]
 config['padding']               = 'same'
 config['use_skip_connections']  = True
 config['dropout_type']          = 'normal'
-config['dropout_rate']          = 0.01
+config['dropout_rate']          = 0.005
 config['return_sequences']      = True
 config['activation']            = 'relu'
 
@@ -71,7 +71,7 @@ config['nb_rec_stacks']         = 5
 config['batch_size']            = 20
 config['epochs']                = 100
 
-config['group_traces']          = 7
+config['group_traces']          = 1
 
 config['convolution_func']      = Conv1D
 if config['group_traces']>1: config['convolution_func'] = Conv2D
