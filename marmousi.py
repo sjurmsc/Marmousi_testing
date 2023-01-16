@@ -114,6 +114,16 @@ axs[0, 1].imshow(seis_pred.T, cmap='seismic')
 axs[1, 1].imshow(seis[split:].reshape((split+1)*config['group_traces'], trace_len).T, cmap='seismic')
 plt.show()
 
+random_trace = 30
+
+plt.plot(seis_pred[random_trace], color='b', label='predicted')
+plt.plot(seis[split:][random_trace], color='r', label='true')
+plt.show()
+
+plt.plot(ai_pred[random_trace], color='g', label='predicted')
+plt.plot(ai[split:][random_trace], color='orange', label='true')
+plt.show()
+
 
 
 
