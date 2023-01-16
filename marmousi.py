@@ -19,9 +19,9 @@ velocity, v_z =     get_traces(files['SEAM']['velocity'], zrange=(None, depth))
 
 ai = density*velocity
 
-# w = np.load('Marmousi_data/wavelet_Marmousi.npz')
-# wavelet = w['wavelet']
-# dt = w['dt']
+w = np.load('Marmousi_data/wavelet_Marmousi.npz')
+wavelet = w['wavelet']
+dt = w['dt']
 
 # seis = []
 # slopes = []
